@@ -6,10 +6,10 @@ python:
 install:
   - pip install -r requirements.txt
   - pip install .
-  - pip install codecov
+  - pip install codecov coverage
 
 script:
-  - python tests/initial-test.py
+  - coverage run tests/initial-test.py
 
 after_success:
   - codecov
