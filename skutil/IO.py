@@ -23,61 +23,63 @@ class CachedDataReader(object):
                 CachedDataReader._instances[_id] = new_instance
                 return new_instance
 
-    def __init_existed__(self, train_path=None, test_path=None, val_path=None, *, _id="default", read_func=None, **read_config):
-        pass
-
     def __init__(self, train_path=None, test_path=None, val_path=None, *, _id="default", read_func=None, **read_config):
         if hasattr(self, "_id"):
-            # Existed instance
-            assert(_id == self._id)
-            if train_path is not None:
-                self.train_path = train_path
-            if test_path is not None:
-                self.test_path = test_path
-            if val_path is not None:
-                self.val_path = val_path
-
-            if read_config:
-                if operator.eq(read_config, self.__read_config):
-                    logging.info(
-                        f"Data reading configuration is already set for {self.__class__} object, it's unnecessary to set it again.")
-                else:
-                    raise ValueError(
-                        "Newly set data reading configuration is different from the cached value. If you do want this, please specify '_id=N' as a parameter.")
-
-            if read_func:
-                if read_func is self.__read_func:
-                    logging.info(
-                        f"Data reading function is already set for {self.__class__} object, it's unnecessary to set it again.")
-                else:
-                    raise ValueError(
-                        "Newly set data reading function is different from the cached value. If you do want this, please specify '_id=N' as a parameter.")
-
+            self.__init_existed__(train_path=train_path, test_path=test_path,
+                                  val_path=val_path, _id=_id, read_func=read_func, **read_config)
         else:
-            # New instance
-            try:
-                if train_path is not None:
-                    assert os.path.exists(train_path)
-                if test_path is not None:
-                    assert os.path.exists(test_path)
-                if val_path is not None:
-                    assert os.path.exists(val_path)
-            except Exception as e:
-                raise ValueError("Some path is invalid or does not exist.", e)
+            self.__init_new__(train_path=train_path, test_path=test_path,
+                              val_path=val_path, _id=_id, read_func=read_func, **read_config)
 
-            self._id = _id
-            self.__read_config = read_config
-            self.__read_func = read_func
+    def __init_existed__(self, train_path=None, test_path=None, val_path=None, *, _id="default", read_func=None, **read_config):
+        assert(_id == self._id)
+        if train_path is not None:
+            self.train_path = train_path
+        if test_path is not None:
+            self.test_path = test_path
+        if val_path is not None:
+            self.val_path = val_path
 
-            if self.__read_func is None:
-                self.__read_func = pd.read_csv
+        if read_config:
+            if operator.eq(read_config, self.__read_config):
+                logging.info(
+                    f"Data reading configuration is already set for {self.__class__} object, it's unnecessary to set it again.")
+            else:
+                raise ValueError(
+                    "Newly set data reading configuration is different from the cached value. If you do want this, please specify '_id=N' as a parameter.")
 
-            if train_path:
-                self._train_path = train_path
-            if test_path:
-                self._test_path = test_path
-            if val_path:
-                self._val_path = val_path
+        if read_func:
+            if read_func is self.__read_func:
+                logging.info(
+                    f"Data reading function is already set for {self.__class__} object, it's unnecessary to set it again.")
+            else:
+                raise ValueError(
+                    "Newly set data reading function is different from the cached value. If you do want this, please specify '_id=N' as a parameter.")
+
+    def __init_new__(self, train_path=None, test_path=None, val_path=None, *, _id="default", read_func=None, **read_config):
+        try:
+            if train_path is not None:
+                assert os.path.exists(train_path)
+            if test_path is not None:
+                assert os.path.exists(test_path)
+            if val_path is not None:
+                assert os.path.exists(val_path)
+        except Exception as e:
+            raise ValueError("Some path is invalid or does not exist.", e)
+
+        self._id = _id
+        self.__read_config = read_config
+        self.__read_func = read_func
+
+        if self.__read_func is None:
+            self.__read_func = pd.read_csv
+
+        if train_path:
+            self._train_path = train_path
+        if test_path:
+            self._test_path = test_path
+        if val_path:
+            self._val_path = val_path
 
     @property
     def train_path(self):
