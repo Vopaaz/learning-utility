@@ -198,6 +198,15 @@ class CachedDataReaderTest(unittest.TestCase):
         self.assertTrue(reader1.train is reader2.train)
         self.assertTrue(reader2.train is reader3.train)
 
+    def test_delay_set_path_and_read(self):
+        _id="test_delay_set_path_and_read"
+        reader = CachedDataReader(_id=_id)
+
+        with self.assertRaises(AttributeError):
+            _ = reader.train
+
+        reader.train_path = self.path1
+        _ = reader.train
 
 if __name__ == "__main__":
     unittest.main()
