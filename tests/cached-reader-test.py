@@ -6,9 +6,9 @@ import pandas as pd
 
 class CachedDataReaderTest(unittest.TestCase):
     def setUp(self):
-        self.path1 = r"tests\assets\data1.csv"
-        self.path2 = r"tests\assets\data2.csv"
-        self.path3 = r"tests\assets\data3.csv"
+        self.path1 = r"tests/assets/data1.csv"
+        self.path2 = r"tests/assets/data2.csv"
+        self.path3 = r"tests/assets/data3.csv"
 
     def test_singleton(self):
         reader1 = CachedDataReader()
