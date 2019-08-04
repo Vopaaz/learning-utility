@@ -5,7 +5,7 @@ import os
 import operator
 
 
-class CachedDataReader(object):
+class DataReader(object):
     _instances = {}
     _instances_lock = threading.Lock()
 
@@ -15,12 +15,12 @@ class CachedDataReader(object):
         else:
             _id = kwargs["_id"]
 
-        with CachedDataReader._instances_lock:
-            if _id in CachedDataReader._instances:
-                return CachedDataReader._instances[_id]
+        with DataReader._instances_lock:
+            if _id in DataReader._instances:
+                return DataReader._instances[_id]
             else:
                 new_instance = object.__new__(cls)
-                CachedDataReader._instances[_id] = new_instance
+                DataReader._instances[_id] = new_instance
                 return new_instance
 
     def __init__(self, train_path=None, test_path=None, val_path=None, *, _id="default", read_func=None, **read_config):
