@@ -7,10 +7,9 @@ from singleton_slave_2 import get_reader_2
 
 
 class DataReaderTest(unittest.TestCase):
-    def setUp(self):
-        self.path1 = r"tests/assets/data1.csv"
-        self.path2 = r"tests/assets/data2.csv"
-        self.path3 = r"tests/assets/data3.csv"
+    path1 = r"tests/assets/data1.csv"
+    path2 = r"tests/assets/data2.csv"
+    path3 = r"tests/assets/data3.csv"
 
     def test_singleton(self):
         reader1 = DataReader()
