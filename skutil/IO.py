@@ -214,7 +214,7 @@ class ResultSaver(object):
         else:
             return X.to_csv(os.path.join(self.save_dir, filename), **self.__used_kwargs)
 
-    def save(self, X, filename=None, memo=None, **kwargs):
+    def save(self, X, filename, memo=None, **kwargs):
         self.__used_kwargs = {**self.save_kwargs, **kwargs}
 
         if self.__using_to_csv:
