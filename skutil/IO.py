@@ -24,6 +24,7 @@ class DataReader(object):
                 return new_instance
 
     def __init__(self, train_path=None, test_path=None, val_path=None, *, _id="default", read_func=None, **read_config):
+        assert read_func is None or callable(read_func)
         if hasattr(self, "_id"):
             self.__init_existed__(train_path=train_path, test_path=test_path,
                                   val_path=val_path, _id=_id, read_func=read_func, **read_config)
@@ -174,3 +175,11 @@ class DataReader(object):
     def val(self):
         raise ValueError(
             f"Attibute 'val' of {self.__class_} object is read only.")
+
+
+class ResultSaver(object):
+    def __init__(self):
+        pass
+
+    def save(X, memo=None):
+        pass

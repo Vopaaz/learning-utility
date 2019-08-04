@@ -2,6 +2,8 @@ import unittest
 from skutil.IO import DataReader
 import logging
 import pandas as pd
+from singleton_slave_1 import get_reader_1
+from singleton_slave_2 import get_reader_2
 
 
 class DataReaderTest(unittest.TestCase):
@@ -20,6 +22,14 @@ class DataReaderTest(unittest.TestCase):
 
         reader4 = DataReader(_id="test_singleton")
         self.assertTrue(reader3 is reader4)
+
+    def test_singleton_for_multi_file(self):
+        reader_1 = get_reader_1()
+        reader_2 = get_reader_2()
+        reader_3 = DataReader(_id="test_singleton_for_multi_file")
+
+        self.assertTrue(reader_1 is reader_2)
+        self.assertTrue(reader_2 is reader_3)
 
     def test_get_set_path_with_init(self):
         train_path = self.path1
@@ -91,6 +101,9 @@ class DataReaderTest(unittest.TestCase):
             self.path1, _id=_id+"2", read_func=pd.read_clipboard)
         self.assertTrue(
             reader._DataReader__read_func is pd.read_clipboard)
+
+        with self.assertRaises(AssertionError):
+            _ = DataReader(self.path1, _id=_id+"3", read_func = "A string.")
 
     def test_duplicate_init(self):
         _id = "test_duplicate_init"
