@@ -19,6 +19,9 @@ class ResultSaverTest(unittest.TestCase):
             assert ".md" not in file_path
         shutil.rmtree(cls.test_assets_dir)
 
+
+class ResultSaverGeneralTest(ResultSaverTest):
+
     def test_create_dir(self):
         ResultSaver(save_dir=self.test_assets_dir)
         self.assertTrue(os.path.isdir(self.test_assets_dir))
@@ -106,3 +109,4 @@ Only some texts.
             content = f.read()
 
         self.assertTrue(content, content_2)
+
