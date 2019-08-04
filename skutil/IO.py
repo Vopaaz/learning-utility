@@ -243,6 +243,14 @@ class ResultSaver(object):
             sniffer = csv.Sniffer()
             content = f.read()
             dialect = sniffer.sniff(content)
+            dialect_kwargs = {
+                "sep":dialect.delimiter,
+                "line_terminator": dialect.lineterminator,
+                "doublequote": dialect.doublequote,
+                "quotechar": dialect.quotechar,
+                "escapechar": dialect.escapechar,
+                "quoting": dialect.quoting
+            }
             has_header = sniffer.has_header(content)
 
             f.seek(0, 0)
@@ -265,7 +273,7 @@ class ResultSaver(object):
             X.iloc[:, 0] = np.arange(example_speculate_result[1], example_speculate_result[1]+X.shape[0])
 
         if has_header:
-            return X.to_csv(fullpath, header=example_df.columns, index=False)
+            return X.to_csv(fullpath, header=example_df.columns, index=False, **dialect_kwargs)
         else:
             raise NotImplementedError
 
