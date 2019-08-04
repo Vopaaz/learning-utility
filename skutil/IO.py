@@ -23,16 +23,16 @@ class DataReader(object):
                 DataReader._instances[_id] = new_instance
                 return new_instance
 
-    def __init__(self, train_path=None, test_path=None, val_path=None, *, _id="default", read_func=None, **read_config):
+    def __init__(self, train_path=None, test_path=None, val_path=None, *, _id="default", read_func=None, **read_kwargs):
         assert read_func is None or callable(read_func)
         if hasattr(self, "_id"):
             self.__init_existed__(train_path=train_path, test_path=test_path,
-                                  val_path=val_path, _id=_id, read_func=read_func, **read_config)
+                                  val_path=val_path, _id=_id, read_func=read_func, **read_kwargs)
         else:
             self.__init_new__(train_path=train_path, test_path=test_path,
-                              val_path=val_path, _id=_id, read_func=read_func, **read_config)
+                              val_path=val_path, _id=_id, read_func=read_func, **read_kwargs)
 
-    def __init_existed__(self, train_path=None, test_path=None, val_path=None, *, _id="default", read_func=None, **read_config):
+    def __init_existed__(self, train_path=None, test_path=None, val_path=None, *, _id="default", read_func=None, **read_kwargs):
         assert(_id == self._id)
         if train_path is not None:
             self.train_path = train_path
@@ -41,8 +41,8 @@ class DataReader(object):
         if val_path is not None:
             self.val_path = val_path
 
-        if read_config:
-            if operator.eq(read_config, self.__read_config):
+        if read_kwargs:
+            if operator.eq(read_kwargs, self.__read_kwargs):
                 logging.info(
                     f"Data reading configuration is already set for {self.__class__} object, it's unnecessary to set it again.")
             else:
@@ -57,7 +57,7 @@ class DataReader(object):
                 raise ValueError(
                     "Newly set data reading function is different from the cached value. If you do want this, please specify '_id=N' as a parameter.")
 
-    def __init_new__(self, train_path=None, test_path=None, val_path=None, *, _id="default", read_func=None, **read_config):
+    def __init_new__(self, train_path=None, test_path=None, val_path=None, *, _id="default", read_func=None, **read_kwargs):
         try:
             if train_path is not None:
                 assert os.path.exists(train_path)
@@ -69,7 +69,7 @@ class DataReader(object):
             raise ValueError("Some path is invalid or does not exist.", e)
 
         self._id = _id
-        self.__read_config = read_config
+        self.__read_kwargs = read_kwargs
         self.__read_func = read_func
 
         if self.__read_func is None:
@@ -150,7 +150,7 @@ class DataReader(object):
 
     @property
     def train(self):
-        return self.__read_func(self.train_path, **self.__read_config)
+        return self.__read_func(self.train_path, **self.__read_kwargs)
 
 
     @train.setter
@@ -160,7 +160,7 @@ class DataReader(object):
 
     @property
     def test(self):
-        return self.__read_func(self.test_path, **self.__read_config)
+        return self.__read_func(self.test_path, **self.__read_kwargs)
 
     @test.setter
     def test(self):
@@ -169,7 +169,7 @@ class DataReader(object):
 
     @property
     def val(self):
-        return self.__read_func(self.val_path, **self.__read_config)
+        return self.__read_func(self.val_path, **self.__read_kwargs)
 
     @val.setter
     def val(self):
