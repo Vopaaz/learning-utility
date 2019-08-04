@@ -155,7 +155,7 @@ class DataReader(object):
     @train.setter
     def train(self):
         raise ValueError(
-            f"Attibute 'train' of {self.__class_} object is read only.")
+            f"Attibute 'train' of {self.__class__} object is read only.")
 
     @property
     def test(self):
@@ -164,7 +164,7 @@ class DataReader(object):
     @test.setter
     def test(self):
         raise ValueError(
-            f"Attibute 'test' of {self.__class_} object is read only.")
+            f"Attibute 'test' of {self.__class__} object is read only.")
 
     @property
     def val(self):
@@ -173,7 +173,7 @@ class DataReader(object):
     @val.setter
     def val(self):
         raise ValueError(
-            f"Attibute 'val' of {self.__class_} object is read only.")
+            f"Attibute 'val' of {self.__class__} object is read only.")
 
 
 class ResultSaver(object):
