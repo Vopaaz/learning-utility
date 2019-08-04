@@ -152,7 +152,6 @@ class DataReader(object):
     def train(self):
         return self.__read_func(self.train_path, **self.__read_kwargs)
 
-
     @train.setter
     def train(self):
         raise ValueError(
@@ -178,8 +177,34 @@ class DataReader(object):
 
 
 class ResultSaver(object):
-    def __init__(self):
+    def __init__(self, save_dir=None, save_func=None,  example_path=None, **save_kwargs):
+        if example_path and save_kwargs:
+            raise ValueError(
+                "You cannot set both 'example_path' and give other saving kwargs at the same time.")
+
+        self.save_func = save_func if save_func else lambda X: X.to_csv
+        self.__using_to_csv = self.save_func is pd.DataFrame.to_csv
+
+        if not self.__using_to_csv and example_path:
+            raise ValueError(
+                "If you are not using 'DataFrame.to_csv', then speculating format from result file will not work.")
+
+        if save_dir and not os.path.exists(save_dir):
+            os.mkdir(save_dir)
+
+        self.save_dir = save_dir
+        self.example_path = example_path
+        self.save_kwargs = save_kwargs
+
+    def __save_specified(self, X, filename):
+        file_path = os.path.join(self.save_dir, filename)
+        return self.save_func(X, file_path, **self.save_kwargs)
+
+    def __save_speculate(self, X, filename):
         pass
 
-    def save(X, memo=None):
-        pass
+    def save(self, X, filename=None, memo=None):
+        if self.save_kwargs:
+            return self.__save_specified(X, filename)
+        else:
+            return self.__save_speculate(X, filename)
