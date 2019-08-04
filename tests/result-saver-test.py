@@ -12,6 +12,7 @@ class ResultSaverTest(unittest.TestCase):
 
     @classmethod
     def tearDownClass(cls):
+        if os.path.exists(cls.test_assets_dir):
         for the_file in os.listdir(cls.test_assets_dir):
             file_path = os.path.join(cls.test_assets_dir, the_file)
             assert "skutil" not in file_path
@@ -110,3 +111,11 @@ Only some texts.
 
         self.assertTrue(content, content_2)
 
+    def test_memo(self):
+        saver = ResultSaver(self.test_assets_dir)
+        saver.save(pd.DataFrame(), "test_memo_df.csv", "hello")
+
+        with open(os.path.join(self.test_assets_dir, "memo.txt"), "r", encoding="utf-8") as f:
+            content = f.read()
+
+        self.assertEqual(content, "test_memo_df.csv: hello")

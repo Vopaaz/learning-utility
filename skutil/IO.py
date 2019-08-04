@@ -218,6 +218,12 @@ class ResultSaver(object):
         self.__used_kwargs = {**self.save_kwargs, **kwargs}
 
         if self.__using_to_csv:
-            return self.__save_by_to_csv(X, filename)
+            res = self.__save_by_to_csv(X, filename)
         else:
-            return self.__save_by_other_func(X, filename)
+            res = self.__save_by_other_func(X, filename)
+
+        if memo:
+            with open(os.path.join(self.save_dir, "memo.txt"), "a+", encoding="utf-8") as f:
+                f.write(f"{filename}: {str(memo)}")
+
+        return res
