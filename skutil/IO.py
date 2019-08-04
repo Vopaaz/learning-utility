@@ -224,6 +224,6 @@ class ResultSaver(object):
 
         if memo:
             with open(os.path.join(self.save_dir, "memo.txt"), "a+", encoding="utf-8") as f:
-                f.write(f"{filename}: {str(memo)}")
+                f.write(f"{filename}: {str(memo)}" + "\n")
 
         return res

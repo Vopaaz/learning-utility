@@ -114,8 +114,13 @@ Only some texts.
     def test_memo(self):
         saver = ResultSaver(self.test_assets_dir)
         saver.save(pd.DataFrame(), "test_memo_df.csv", "hello")
-
         with open(os.path.join(self.test_assets_dir, "memo.txt"), "r", encoding="utf-8") as f:
             content = f.read()
+        self.assertEqual(content.strip(), "test_memo_df.csv: hello")
 
-        self.assertEqual(content, "test_memo_df.csv: hello")
+        saver.save(pd.DataFrame(), "test_memo_df_2.csv", "hello again")
+        with open(os.path.join(self.test_assets_dir, "memo.txt"), "r", encoding="utf-8") as f:
+            content = f.read()
+        self.assertEqual(content.strip(), "\n".join(["test_memo_df.csv: hello", "test_memo_df_2.csv: hello again"]))
+
+
