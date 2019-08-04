@@ -88,13 +88,13 @@ class DataReaderTest(unittest.TestCase):
             reader.val_path = train_path
         self.assertEqual(reader.val_path, val_path)
 
-    def test_initial_read_func_and_read_config(self):
-        _id = "test_initial_read_func_and_read_config"
+    def test_initial_read_func_and_read_kwargs(self):
+        _id = "test_initial_read_func_and_read_kwargs"
 
         reader = DataReader(
             self.path1, _id=_id+"1", conf_a="a", conf_b="B")
         self.assertTrue(reader._DataReader__read_func is pd.read_csv)
-        self.assertDictEqual(reader._DataReader__read_config, {
+        self.assertDictEqual(reader._DataReader__read_kwargs, {
                              "conf_a": "a", "conf_b": "B"})
 
         reader = DataReader(
