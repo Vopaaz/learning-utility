@@ -177,13 +177,17 @@ class DataReader(object):
 
 
 class ResultSaver(object):
-    def __init__(self, save_dir=None, save_func=None,  example_path=None, **save_kwargs):
+    def __init__(self, save_dir=None, save_func="to_csv",  example_path=None, **save_kwargs):
         if example_path and save_kwargs:
             raise ValueError(
                 "You cannot set both 'example_path' and give other saving kwargs at the same time.")
 
-        self.save_func = save_func if save_func else lambda X: X.to_csv
-        self.__using_to_csv = self.save_func is pd.DataFrame.to_csv
+        if save_func == "to_csv":
+            self.__using_to_csv = True
+        else:
+            assert callable(save_func)
+            self.__using_to_csv = False
+            self.save_func = save_func
 
         if not self.__using_to_csv and example_path:
             raise ValueError(
@@ -196,15 +200,17 @@ class ResultSaver(object):
         self.example_path = example_path
         self.save_kwargs = save_kwargs
 
-    def __save_specified(self, X, filename):
+    def __save_by_other_func(self, X, filename):
         file_path = os.path.join(self.save_dir, filename)
-        return self.save_func(X, file_path, **self.save_kwargs)
+        return self.save_func(X, file_path, **self.__used_kwargs)
 
-    def __save_speculate(self, X, filename):
+    def __save_by_to_csv(self, X, filename):
         pass
 
-    def save(self, X, filename=None, memo=None):
-        if self.save_kwargs:
-            return self.__save_specified(X, filename)
+    def save(self, X, filename=None, memo=None, **kwargs):
+        self.__used_kwargs = {**self.save_kwargs, **kwargs}
+
+        if self.__using_to_csv:
+            return self.__save_by_to_csv(X, filename)
         else:
-            return self.__save_speculate(X, filename)
+            return self.__save_by_other_func(X, filename)
