@@ -52,13 +52,16 @@ Only some texts.
 
         saver = ResultSaver(save_dir=self.test_assets_dir, save_func=save_func, encoding="utf-8")
         res = saver.save(data, "test_save_by_other_func_1.txt")
-
         with open(os.path.join(self.test_assets_dir, "test_save_by_other_func_1.txt"), "r", encoding="utf-8") as f:
             content = f.read()
-
         self.assertEqual(data, content)
         self.assertEqual(res, "Success")
 
-
+        saver = ResultSaver(save_dir=self.test_assets_dir, save_func=save_func)
+        res = saver.save(data, "test_save_by_other_func_2.txt", encoding="GBK")
+        with open(os.path.join(self.test_assets_dir, "test_save_by_other_func_1.txt"), "r", encoding="GBK") as f:
+            content = f.read()
+        self.assertEqual(data, content)
+        self.assertEqual(res, "Success")
 
 
