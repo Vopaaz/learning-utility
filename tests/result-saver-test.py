@@ -39,7 +39,7 @@ class ResultSaverTest(unittest.TestCase):
         _ = ResultSaver()
         _ = ResultSaver(save_func=lambda X: X.to_csv)
 
-    def test_save_specified(self):
+    def test_save_by_other_func(self):
         data = '''Only some texts.
 Only some texts.
 Only some texts.
@@ -51,9 +51,9 @@ Only some texts.
                 return "Success"
 
         saver = ResultSaver(save_dir=self.test_assets_dir, save_func=save_func, encoding="utf-8")
-        res = saver.save(data, "test_save_specified_1.txt")
+        res = saver.save(data, "test_save_by_other_func_1.txt")
 
-        with open(os.path.join(self.test_assets_dir, "test_save_specified_1.txt"), "r", encoding="utf-8") as f:
+        with open(os.path.join(self.test_assets_dir, "test_save_by_other_func_1.txt"), "r", encoding="utf-8") as f:
             content = f.read()
 
         self.assertEqual(data, content)
