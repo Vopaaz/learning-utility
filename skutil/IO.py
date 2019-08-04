@@ -3,6 +3,11 @@ import threading
 import logging
 import os
 import operator
+import chardet
+import csv
+import numpy as np
+
+from skutil._exceptions import SpeculationFailedError
 
 
 class DataReader(object):
@@ -210,9 +215,59 @@ class ResultSaver(object):
                 "You cannot set both 'example_path' and give other saving kwargs at the same time.")
 
         if self.example_path:
-            raise NotImplementedError
+            return self.__save_by_to_csv_speculating(X, filename)
         else:
+            if not isinstance(X, (pd.DataFrame, pd.Series)):
+                raise TypeError(
+                    f"When using 'to_csv', 'X' must be a pd.DataFrame or pd.Series, rather than {X.__class__} if you do not provide an example csv file, or are using self-defined keyword parameters.")
             return X.to_csv(os.path.join(self.save_dir, filename), **self.__used_kwargs)
+
+    def __speculate_auto_increase_index(self, s):
+        for i in range(min(len(s)-1, 100)):
+            if s.iloc[i+1] - s.iloc[i] != 1:
+                return (False,)
+        return (True, s.iloc[0])
+
+    def __save_by_to_csv_speculating(self, X, filename):
+        if not isinstance(X, (pd.DataFrame, pd.Series, np.ndarray)):
+            raise TypeError(
+                f"When using 'to_csv', 'X' must be either a pd.DataFrame, pd.Series or np.ndarray, rather than {X.__class__} if you provide an example csv file.")
+
+        fullpath = os.path.join(self.save_dir, filename)
+
+        with open(self.example_path, "rb") as f:
+            buffer = f.read()
+            enc = chardet.detect(buffer)["encoding"]
+
+        with open(self.example_path, "r", encoding=enc) as f:
+            sniffer = csv.Sniffer()
+            content = f.read()
+            dialect = sniffer.sniff(content)
+            has_header = sniffer.has_header(content)
+
+            f.seek(0, 0)
+            example_df = pd.read_csv(f, dialect=dialect, index_col=False)
+
+        X = pd.DataFrame(X)
+
+        if X.shape[1] > example_df.shape[1]:
+            raise SpeculationFailedError(
+                "The number of columns of 'X' is larger than that provided in the example file.")
+
+        while X.shape[1] < example_df.shape[1]:
+            X = X.reset_index(level=0)
+
+        if self.__speculate_auto_increase_index(X.iloc[:, 0])[0]:
+            X.iloc[:, 0] = X.iloc[:, 0].astype(int)
+
+        example_speculate_result = self.__speculate_auto_increase_index(example_df.iloc[:, 0])
+        if example_speculate_result[0]:
+            X.iloc[:, 0] = np.arange(example_speculate_result[1], example_speculate_result[1]+X.shape[0])
+
+        if has_header:
+            return X.to_csv(fullpath, header=example_df.columns, index=False)
+        else:
+            raise NotImplementedError
 
     def save(self, X, filename, memo=None, **kwargs):
         self.__used_kwargs = {**self.save_kwargs, **kwargs}

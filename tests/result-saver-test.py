@@ -122,12 +122,13 @@ Only some texts.
         saver.save(pd.DataFrame(), "test_memo_df_2.csv", "hello again")
         with open(os.path.join(self.test_assets_dir, "memo.txt"), "r", encoding="utf-8") as f:
             content = f.read()
-        self.assertEqual(content.strip(), "\n".join(["test_memo_df.csv: hello", "test_memo_df_2.csv: hello again"]))
+        self.assertEqual(content.strip(), "\n".join(
+            ["test_memo_df.csv: hello", "test_memo_df_2.csv: hello again"]))
 
 
 class ResultSaverSpeculatingTest(ResultSaverTest):
     np_1d = np.array([1, 0, 1.5, 0.5])
-    np_2d_1val = np.array([[1, 0, 1, 0.5]])
+    np_2d_1val = np.array([[1], [0], [1.5], [0.5]])
     np_2d_ix_and_val = np.array([
         [0, 1, 2, 3],
         [1, 0, 1.5, 0.5]
@@ -139,9 +140,69 @@ class ResultSaverSpeculatingTest(ResultSaverTest):
 
     pd_series = pd.Series(np_1d)
     pd_series_with_name = pd.Series(np_1d, name="name")
-    pd_series_with_ix_start_1 = pd.Series(np_1d, index=np_2d_ix_start_1_and_val[:, 0])
+    pd_series_with_ix_start_1 = pd.Series(
+        np_1d, index=np_2d_ix_start_1_and_val[:, 0])
+    pd_series_with_bad_index = pd.Series(
+        np_1d, index=[7, 3, 2, 9])
 
     pd_df_1d = pd.DataFrame(np_1d)
-    pd_df_1d_ix_and_val = pd.DataFrame(np_1d, index=np_2d_ix_start_1_and_val[:, 0])
+    pd_df_1d_ix_and_val = pd.DataFrame(
+        np_1d, index=np_2d_ix_start_1_and_val[:, 0])
     pd_df_2d = pd.DataFrame(np_2d_ix_and_val)
 
+    filename = "temp_writing.csv"
+
+    def test_saving_without_example_path(self):
+        saver = ResultSaver(self.test_assets_dir)
+        with self.assertRaises(TypeError):
+            saver.save(self.np_1d, "wrong.csv")
+
+        saver.save(self.pd_df_1d, "test_saving_without_example_path_1.csv")
+        self.pd_df_1d.to_csv(os.path.join(
+            self.test_assets_dir, "test_saving_without_example_path_2.csv"))
+
+        with open(os.path.join(self.test_assets_dir, "test_saving_without_example_path_1.csv"), "r", encoding="utf-8") as f:
+            content_1 = f.read()
+        with open(os.path.join(self.test_assets_dir, "test_saving_without_example_path_2.csv"), "r", encoding="utf-8") as f:
+            content_2 = f.read()
+
+        self.assertEqual(content_1, content_2)
+
+    def get_csv_content(self):
+        with open(os.path.join(self.test_assets_dir, self.filename), "r", encoding="utf-8") as f:
+            return f.read()
+
+    def test_basic(self):
+        saver = ResultSaver(save_dir=self.test_assets_dir,
+                            example_path=r"tests/assets/saver-example-basic.csv")
+        target = '''index,value
+0,1.0
+1,0.0
+2,1.5
+3,0.5
+'''
+        saver.save(self.np_1d, self.filename)
+        self.assertEqual(self.get_csv_content(), target)
+
+        saver.save(self.np_2d_1val, self.filename)
+        self.assertEqual(self.get_csv_content(), target)
+
+        saver.save(self.np_2d_ix_and_val, self.filename)
+        self.assertEqual(self.get_csv_content(), target)
+
+        saver.save(self.pd_series, self.filename)
+        self.assertEqual(self.get_csv_content(), target)
+
+        saver.save(self.pd_series_with_bad_index, self.filename)
+        self.assertEqual(self.get_csv_content(), target)
+
+        saver.save(self.pd_series_with_ix_start_1, self.filename)
+        self.assertEqual(self.get_csv_content(), target)
+
+        saver.save(self.pd_df_2d, self.filename)
+        self.assertEqual(self.get_csv_content(), target)
+
+    def test_background_things(self):
+        # REMINDER: do not use self.get_csv_content when testing GBK.
+        # It defaultly uses utf-8.
+        pass
