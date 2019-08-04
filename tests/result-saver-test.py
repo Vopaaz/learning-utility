@@ -2,6 +2,7 @@ import unittest
 from skutil.IO import ResultSaver
 import logging
 import pandas as pd
+import numpy as np
 
 import os
 import shutil
@@ -13,12 +14,12 @@ class ResultSaverTest(unittest.TestCase):
     @classmethod
     def tearDownClass(cls):
         if os.path.exists(cls.test_assets_dir):
-        for the_file in os.listdir(cls.test_assets_dir):
-            file_path = os.path.join(cls.test_assets_dir, the_file)
-            assert "skutil" not in file_path
-            assert "git" not in file_path
-            assert ".md" not in file_path
-        shutil.rmtree(cls.test_assets_dir)
+            for the_file in os.listdir(cls.test_assets_dir):
+                file_path = os.path.join(cls.test_assets_dir, the_file)
+                assert "skutil" not in file_path
+                assert "git" not in file_path
+                assert ".md" not in file_path
+            shutil.rmtree(cls.test_assets_dir)
 
 
 class ResultSaverGeneralTest(ResultSaverTest):
@@ -123,4 +124,24 @@ Only some texts.
             content = f.read()
         self.assertEqual(content.strip(), "\n".join(["test_memo_df.csv: hello", "test_memo_df_2.csv: hello again"]))
 
+
+class ResultSaverSpeculatingTest(ResultSaverTest):
+    np_1d = np.array([1, 0, 1.5, 0.5])
+    np_2d_1val = np.array([[1, 0, 1, 0.5]])
+    np_2d_ix_and_val = np.array([
+        [0, 1, 2, 3],
+        [1, 0, 1.5, 0.5]
+    ]).T
+    np_2d_ix_start_1_and_val = np.array([
+        [1, 2, 3, 4],
+        [1, 0, 1.5, 0.5]
+    ]).T
+
+    pd_series = pd.Series(np_1d)
+    pd_series_with_name = pd.Series(np_1d, name="name")
+    pd_series_with_ix_start_1 = pd.Series(np_1d, index=np_2d_ix_start_1_and_val[:, 0])
+
+    pd_df_1d = pd.DataFrame(np_1d)
+    pd_df_1d_ix_and_val = pd.DataFrame(np_1d, index=np_2d_ix_start_1_and_val[:, 0])
+    pd_df_2d = pd.DataFrame(np_2d_ix_and_val)
 
