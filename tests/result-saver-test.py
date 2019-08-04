@@ -232,6 +232,8 @@ class ResultSaverSpeculatingTest(ResultSaverTest):
         self.assertEqual(content, target)
 
     def test_other_sep(self):
+        saver = ResultSaver(save_dir=self.test_assets_dir,
+                            example_path=r"tests/assets/saver-example-other-sep.csv")
         target = '''index;value
 0;1.0
 1;0.0
@@ -239,4 +241,4 @@ class ResultSaverSpeculatingTest(ResultSaverTest):
 3;0.5
 '''
 
-
+        self.run_all_X_s(saver, target)
