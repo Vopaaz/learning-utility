@@ -149,11 +149,8 @@ class CachedDataReader(object):
 
     @property
     def train(self):
-        if hasattr(self, "_train"):
-            return self._train
-        else:
-            self._train = pd.read_csv(self.train_path, **self.__read_config)
-            return self._train
+        return self.__read_func(self.train_path, **self.__read_config)
+
 
     @train.setter
     def train(self):
@@ -162,11 +159,7 @@ class CachedDataReader(object):
 
     @property
     def test(self):
-        if hasattr(self, "_test"):
-            return self._test
-        else:
-            self._test = pd.read_csv(self.test_path, **self.__read_config)
-            return self._test
+        return self.__read_func(self.test_path, **self.__read_config)
 
     @test.setter
     def test(self):
@@ -175,11 +168,7 @@ class CachedDataReader(object):
 
     @property
     def val(self):
-        if hasattr(self, "_val"):
-            return self._val
-        else:
-            self._val = pd.read_csv(self.val_path, **self.__read_config)
-            return self._val
+        return self.__read_func(self.val_path, **self.__read_config)
 
     @val.setter
     def val(self):
