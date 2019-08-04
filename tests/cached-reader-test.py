@@ -220,5 +220,16 @@ class DataReaderTest(unittest.TestCase):
         reader.train_path = self.path1
         _ = reader.train
 
-if __name__ == "__main__":
-    unittest.main()
+    def test_cannot_set_datasets(self):
+        _id = "test_cannot_set_datasets"
+
+        reader = DataReader(_id=_id)
+
+        with self.assertRaises(ValueError):
+            reader.train = 1
+
+        with self.assertRaises(ValueError):
+            reader.test = 1
+
+        with self.assertRaises(ValueError):
+            reader.val = 1

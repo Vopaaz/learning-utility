@@ -158,7 +158,7 @@ class DataReader(object):
         return self.__read_func(self.train_path, **self.__read_kwargs)
 
     @train.setter
-    def train(self):
+    def train(self, value):
         raise ValueError(
             f"Attibute 'train' of {self.__class__} object is read only.")
 
@@ -167,7 +167,7 @@ class DataReader(object):
         return self.__read_func(self.test_path, **self.__read_kwargs)
 
     @test.setter
-    def test(self):
+    def test(self, value):
         raise ValueError(
             f"Attibute 'test' of {self.__class__} object is read only.")
 
@@ -176,7 +176,7 @@ class DataReader(object):
         return self.__read_func(self.val_path, **self.__read_kwargs)
 
     @val.setter
-    def val(self):
+    def val(self, value):
         raise ValueError(
             f"Attibute 'val' of {self.__class__} object is read only.")
 
