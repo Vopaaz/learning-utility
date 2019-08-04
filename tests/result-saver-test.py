@@ -172,15 +172,7 @@ class ResultSaverSpeculatingTest(ResultSaverTest):
         with open(os.path.join(self.test_assets_dir, self.filename), "r", encoding="utf-8") as f:
             return f.read()
 
-    def test_basic(self):
-        saver = ResultSaver(save_dir=self.test_assets_dir,
-                            example_path=r"tests/assets/saver-example-basic.csv")
-        target = '''index,value
-0,1.0
-1,0.0
-2,1.5
-3,0.5
-'''
+    def run_all_X_s(self, saver, target):
         saver.save(self.np_1d, self.filename)
         self.assertEqual(self.get_csv_content(), target)
 
@@ -202,7 +194,49 @@ class ResultSaverSpeculatingTest(ResultSaverTest):
         saver.save(self.pd_df_2d, self.filename)
         self.assertEqual(self.get_csv_content(), target)
 
-    def test_background_things(self):
+    def test_basic(self):
+        saver = ResultSaver(save_dir=self.test_assets_dir,
+                            example_path=r"tests/assets/saver-example-basic.csv")
+        target = '''index,value
+0,1.0
+1,0.0
+2,1.5
+3,0.5
+'''
+        self.run_all_X_s(saver, target)
+
+    def test_GBK(self):
         # REMINDER: do not use self.get_csv_content when testing GBK.
         # It defaultly uses utf-8.
-        pass
+        saver = ResultSaver(save_dir=self.test_assets_dir,
+                            example_path=r"tests/assets/saver-example-GBK.csv")
+        target = '''index,value
+0,1.0
+1,0.0
+2,1.5
+3,0.5
+'''
+        saver.save(self.np_1d, self.filename)
+        with open(os.path.join(self.test_assets_dir, self.filename), "r", encoding="GBK") as f:
+            content = f.read()
+        self.assertEqual(content, target)
+
+        saver.save(self.np_2d_ix_and_val, self.filename)
+        with open(os.path.join(self.test_assets_dir, self.filename), "r", encoding="GBK") as f:
+            content = f.read()
+        self.assertEqual(content, target)
+
+        saver.save(self.pd_df_2d, self.filename)
+        with open(os.path.join(self.test_assets_dir, self.filename), "r", encoding="GBK") as f:
+            content = f.read()
+        self.assertEqual(content, target)
+
+    def test_other_sep(self):
+        target = '''index;value
+0;1.0
+1;0.0
+2;1.5
+3;0.5
+'''
+
+
