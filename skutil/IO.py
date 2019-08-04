@@ -177,7 +177,7 @@ class DataReader(object):
 
 
 class ResultSaver(object):
-    def __init__(self, save_dir=None, save_func="to_csv",  example_path=None, **save_kwargs):
+    def __init__(self, save_dir="", save_func="to_csv",  example_path=None, **save_kwargs):
         if example_path and save_kwargs:
             raise ValueError(
                 "You cannot set both 'example_path' and give other saving kwargs at the same time.")
@@ -205,7 +205,14 @@ class ResultSaver(object):
         return self.save_func(X, file_path, **self.__used_kwargs)
 
     def __save_by_to_csv(self, X, filename):
-        pass
+        if self.example_path and self.__used_kwargs:
+            raise ValueError(
+                "You cannot set both 'example_path' and give other saving kwargs at the same time.")
+
+        if self.example_path:
+            raise NotImplementedError
+        else:
+            return X.to_csv(os.path.join(self.save_dir, filename), **self.__used_kwargs)
 
     def save(self, X, filename=None, memo=None, **kwargs):
         self.__used_kwargs = {**self.save_kwargs, **kwargs}
