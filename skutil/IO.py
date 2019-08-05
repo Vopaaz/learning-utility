@@ -8,6 +8,7 @@ import csv
 import numpy as np
 
 from skutil._exceptions import SpeculationFailedError
+from pandas.api.types import is_string_dtype, is_numeric_dtype
 
 
 class DataReader(object):
@@ -222,11 +223,40 @@ class ResultSaver(object):
                     f"When using 'to_csv', 'X' must be a pd.DataFrame or pd.Series, rather than {X.__class__} if you do not provide an example csv file, or are using self-defined keyword parameters.")
             return X.to_csv(os.path.join(self.save_dir, filename), **self.__used_kwargs)
 
-    def __speculate_auto_increase_index(self, s):
-        for i in range(min(len(s)-1, 100)):
-            if s.iloc[i+1] - s.iloc[i] != 1:
+    def __speculate_index(self, s):
+        s = s.copy()
+        if is_string_dtype(s):
+            return (True, s.iloc[0])
+
+        step = len(s)//100 + 1
+
+        for i in range(0, len(s)-1, step):
+            if s.iloc[i+step] - s.iloc[i] != step:
                 return (False,)
         return (True, s.iloc[0])
+
+    def __try_add_column(self, X, example_df):
+        e = SpeculationFailedError(
+            "The number of columns of 'X' is smaller than that in the example file.")
+        col_ix = example_df.shape[1] - X.shape[1] - 1
+        example_spec = self.__speculate_index(example_df.iloc[:, col_ix])
+        if example_spec[0]:
+            X = X.reset_index(level=0)
+            X.iloc[:, 0] = X.iloc[:, 0].astype(int)
+            X_spec = self.__speculate_index(X.iloc[:, 0])
+            if X_spec[0] and X_spec[1] == example_spec[1]:
+                pass  # Index addition OK
+            else:
+                if example_spec[1] == 0:
+                    X.iloc[:, 0] = np.arange(X.shape[0])
+                elif example_spec[1] == 1:
+                    X.iloc[:, 1] = np.arange(1, X.shape[0]+1)
+                else:
+                    raise e
+        else:
+            raise e
+
+        return X
 
     def __save_by_to_csv_speculating(self, X, filename):
         if not isinstance(X, (pd.DataFrame, pd.Series, np.ndarray)):
@@ -244,7 +274,7 @@ class ResultSaver(object):
             content = f.read()
             dialect = sniffer.sniff(content)
             dialect_kwargs = {
-                "sep":dialect.delimiter,
+                "sep": dialect.delimiter,
                 "line_terminator": dialect.lineterminator,
                 "doublequote": dialect.doublequote,
                 "quotechar": dialect.quotechar,
@@ -258,19 +288,27 @@ class ResultSaver(object):
 
         X = pd.DataFrame(X)
 
-        if X.shape[1] > example_df.shape[1]:
-            raise SpeculationFailedError(
-                "The number of columns of 'X' is larger than that provided in the example file.")
+        while X.shape[1] > example_df.shape[1]:
+            # Drop columns of X
+            if self.__speculate_index(X.iloc[:, 0])[0]:
+                X = X.drop(columns=[X.columns.values[0]])
+            else:
+                raise SpeculationFailedError(
+                    "The number of columns of 'X' is larger than that in the example file.")
 
         while X.shape[1] < example_df.shape[1]:
-            X = X.reset_index(level=0)
+            X = self.__try_add_column(X, example_df)
 
-        if self.__speculate_auto_increase_index(X.iloc[:, 0])[0]:
-            X.iloc[:, 0] = X.iloc[:, 0].astype(int)
+        for i in range(X.shape[1]):
+            if self.__speculate_index(X.iloc[:, i])[0]:
+                X.iloc[:, i] = X.iloc[:, i].astype(int)
+            else:
+                break
 
-        example_speculate_result = self.__speculate_auto_increase_index(example_df.iloc[:, 0])
-        if example_speculate_result[0]:
-            X.iloc[:, 0] = np.arange(example_speculate_result[1], example_speculate_result[1]+X.shape[0])
+        example_spec_res = self.__speculate_index(example_df.iloc[:, 0])
+        if example_spec_res[0] and is_numeric_dtype(example_spec_res[1]):
+            X.iloc[:, 0] = np.arange(
+                example_spec_res[1], example_spec_res[1]+X.shape[0])
 
         if has_header:
             return X.to_csv(fullpath, header=example_df.columns, index=False, **dialect_kwargs)
