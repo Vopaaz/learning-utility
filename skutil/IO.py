@@ -242,7 +242,10 @@ class ResultSaver(object):
         example_spec = self.__speculate_index(example_df.iloc[:, col_ix])
         if example_spec[0]:
             X = X.reset_index(level=0)
-            X.iloc[:, 0] = X.iloc[:, 0].astype(int)
+            try:
+                X.iloc[:, 0] = X.iloc[:, 0].astype(int)
+            except:
+                pass
             X_spec = self.__speculate_index(X.iloc[:, 0])
             if X_spec[0] and X_spec[1] == example_spec[1]:
                 pass  # Index addition OK
@@ -270,6 +273,11 @@ class ResultSaver(object):
             enc = chardet.detect(buffer)["encoding"]
 
         with open(self.example_path, "r", encoding=enc) as f:
+            df = pd.read_csv(f, header=None, nrows=1)
+
+        has_header = is_string_dtype(df.iloc[0,:])
+
+        with open(self.example_path, "r", encoding=enc) as f:
             sniffer = csv.Sniffer()
             content = f.read()
             dialect = sniffer.sniff(content)
@@ -281,7 +289,7 @@ class ResultSaver(object):
                 "escapechar": dialect.escapechar,
                 "quoting": dialect.quoting
             }
-            has_header = sniffer.has_header(content)
+            has_header = sniffer.has_header(content) or has_header
 
             f.seek(0, 0)
             example_df = pd.read_csv(f, dialect=dialect, index_col=False)
@@ -300,7 +308,7 @@ class ResultSaver(object):
             X = self.__try_add_column(X, example_df)
 
         for i in range(X.shape[1]):
-            if self.__speculate_index(X.iloc[:, i])[0]:
+            if self.__speculate_index(X.iloc[:, i])[0] and is_numeric_dtype(X.iloc[:, i]):
                 X.iloc[:, i] = X.iloc[:, i].astype(int)
             else:
                 break

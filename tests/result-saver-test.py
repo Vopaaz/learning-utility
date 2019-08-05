@@ -269,8 +269,30 @@ class ResultSaverSpeculatingTest(ResultSaverTest):
         with self.assertRaises(SpeculationFailedError):
             saver.save(self.pd_df_1d, self.filename)
 
-        with self.assertRaises(SpeculationFailedError):
-            saver.save(self.pd_df_2d, self.filename)
+        saver.save(self.pd_df_2d, self.filename)
+        target='''ix,val
+0,1.0
+1,0.0
+2,1.5
+3,0.5
+'''
+        self.assertEqual(self.get_csv_content(), target)
+
+        saver.save(pd.Series(self.np_1d, index=str_ix), self.filename)
+        target='''ix,val
+strix1,1.0
+strix2,0.0
+strix3,1.5
+strix4,0.5
+'''
+        self.assertEqual(self.get_csv_content(), target)
+
+
+
+
+
+
+
 
 
 
