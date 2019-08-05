@@ -129,6 +129,8 @@ Only some texts.
 class ResultSaverSpeculatingTest(ResultSaverTest):
     np_1d = np.array([1, 0, 1.5, 0.5])
     np_2d_1val = np.array([[1], [0], [1.5], [0.5]])
+
+    # Just for creating DataFrame, not used as Test
     np_2d_ix_and_val = np.array([
         [0, 1, 2, 3],
         [1, 0, 1.5, 0.5]
@@ -149,6 +151,7 @@ class ResultSaverSpeculatingTest(ResultSaverTest):
     pd_df_1d_ix_and_val = pd.DataFrame(
         np_1d, index=np_2d_ix_start_1_and_val[:, 0])
     pd_df_2d = pd.DataFrame(np_2d_ix_and_val)
+    pd_df_2d_start_1 = pd.DataFrame(np_2d_ix_start_1_and_val)
 
     filename = "temp_writing.csv"
 
@@ -179,9 +182,6 @@ class ResultSaverSpeculatingTest(ResultSaverTest):
         saver.save(self.np_2d_1val, self.filename)
         self.assertEqual(self.get_csv_content(), target)
 
-        saver.save(self.np_2d_ix_and_val, self.filename)
-        self.assertEqual(self.get_csv_content(), target)
-
         saver.save(self.pd_series, self.filename)
         self.assertEqual(self.get_csv_content(), target)
 
@@ -192,6 +192,9 @@ class ResultSaverSpeculatingTest(ResultSaverTest):
         self.assertEqual(self.get_csv_content(), target)
 
         saver.save(self.pd_df_2d, self.filename)
+        self.assertEqual(self.get_csv_content(), target)
+
+        saver.save(self.pd_df_2d_start_1, self.filename)
         self.assertEqual(self.get_csv_content(), target)
 
     def test_basic(self):
@@ -221,7 +224,7 @@ class ResultSaverSpeculatingTest(ResultSaverTest):
             content = f.read()
         self.assertEqual(content, target)
 
-        saver.save(self.np_2d_ix_and_val, self.filename)
+        saver.save(self.np_2d_1val, self.filename)
         with open(os.path.join(self.test_assets_dir, self.filename), "r", encoding="GBK") as f:
             content = f.read()
         self.assertEqual(content, target)
