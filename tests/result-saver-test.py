@@ -7,6 +7,8 @@ import numpy as np
 import os
 import shutil
 
+from skutil._exceptions import SpeculationFailedError
+
 
 class ResultSaverTest(unittest.TestCase):
     test_assets_dir = r"tests/assets/saverTest"
@@ -254,4 +256,22 @@ class ResultSaverSpeculatingTest(ResultSaverTest):
 '''
 
         self.run_all_X_s(saver, target)
+
+    def test_str_as_index(self):
+        saver = ResultSaver(save_dir=self.test_assets_dir,
+                    example_path=r"tests/assets/saver-example-str-as-index.csv")
+
+        str_ix = ["strix1", "strix2", "strix3", "strix4"]
+
+        with self.assertRaises(SpeculationFailedError):
+            saver.save(self.np_1d, self.filename)
+
+        with self.assertRaises(SpeculationFailedError):
+            saver.save(self.pd_df_1d, self.filename)
+
+        with self.assertRaises(SpeculationFailedError):
+            saver.save(self.pd_df_2d, self.filename)
+
+
+
 

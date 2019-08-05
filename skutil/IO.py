@@ -313,7 +313,7 @@ class ResultSaver(object):
         if has_header:
             return X.to_csv(fullpath, header=example_df.columns, index=False, **dialect_kwargs)
         else:
-            raise NotImplementedError
+            return X.to_csv(fullpath, header=False, index=False, **dialect_kwargs)
 
     def save(self, X, filename, memo=None, **kwargs):
         self.__used_kwargs = {**self.save_kwargs, **kwargs}
