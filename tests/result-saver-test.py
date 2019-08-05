@@ -185,10 +185,19 @@ class ResultSaverSpeculatingTest(ResultSaverTest):
         saver.save(self.pd_series, self.filename)
         self.assertEqual(self.get_csv_content(), target)
 
+        saver.save(self.pd_series_with_name, self.filename)
+        self.assertEqual(self.get_csv_content(), target)
+
         saver.save(self.pd_series_with_bad_index, self.filename)
         self.assertEqual(self.get_csv_content(), target)
 
         saver.save(self.pd_series_with_ix_start_1, self.filename)
+        self.assertEqual(self.get_csv_content(), target)
+
+        saver.save(self.pd_df_1d, self.filename)
+        self.assertEqual(self.get_csv_content(), target)
+
+        saver.save(self.pd_df_1d_ix_and_val, self.filename)
         self.assertEqual(self.get_csv_content(), target)
 
         saver.save(self.pd_df_2d, self.filename)
@@ -245,3 +254,4 @@ class ResultSaverSpeculatingTest(ResultSaverTest):
 '''
 
         self.run_all_X_s(saver, target)
+
