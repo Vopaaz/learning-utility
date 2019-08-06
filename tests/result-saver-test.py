@@ -287,8 +287,14 @@ strix4,0.5
 '''
         self.assertEqual(self.get_csv_content(), target)
 
+        saver.save(pd.DataFrame(self.np_1d, index=str_ix), self.filename)
+        self.assertEqual(self.get_csv_content(), target)
 
-
+        saver.save(pd.DataFrame({
+            "ix": str_ix,
+            "val": self.np_1d,
+        }), self.filename)
+        self.assertEqual(self.get_csv_content(), target)
 
 
 
