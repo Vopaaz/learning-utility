@@ -259,7 +259,7 @@ class ResultSaverSpeculatingTest(ResultSaverTest):
 
     def test_str_as_index(self):
         saver = ResultSaver(save_dir=self.test_assets_dir,
-                    example_path=r"tests/assets/saver-example-str-as-index.csv")
+                            example_path=r"tests/assets/saver-example-str-as-index.csv")
 
         str_ix = ["strix1", "strix2", "strix3", "strix4"]
 
@@ -270,7 +270,7 @@ class ResultSaverSpeculatingTest(ResultSaverTest):
             saver.save(self.pd_df_1d, self.filename)
 
         saver.save(self.pd_df_2d, self.filename)
-        target='''ix,val
+        target = '''ix,val
 0,1.0
 1,0.0
 2,1.5
@@ -279,7 +279,7 @@ class ResultSaverSpeculatingTest(ResultSaverTest):
         self.assertEqual(self.get_csv_content(), target)
 
         saver.save(pd.Series(self.np_1d, index=str_ix), self.filename)
-        target='''ix,val
+        target = '''ix,val
 strix1,1.0
 strix2,0.0
 strix3,1.5
@@ -296,10 +296,14 @@ strix4,0.5
         }), self.filename)
         self.assertEqual(self.get_csv_content(), target)
 
+    def test_saving_without_head(self):
+        saver = ResultSaver(save_dir=self.test_assets_dir,
+                            example_path=r"tests/assets/saver-example-without-head.csv")
+        target = '''0,1.0
+1,0.0
+2,1.5
+3,0.5
+'''
 
-
-
-
-
-
+        self.run_all_X_s(saver, target)
 
