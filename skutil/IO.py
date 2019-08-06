@@ -292,7 +292,7 @@ class ResultSaver(object):
             has_header = sniffer.has_header(content) or has_header
 
             f.seek(0, 0)
-            example_df = pd.read_csv(f, dialect=dialect, index_col=False)
+            example_df = pd.read_csv(f, dialect=dialect, index_col=False, header=0 if has_header else None)
 
         X = pd.DataFrame(X)
 
