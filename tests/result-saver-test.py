@@ -296,6 +296,32 @@ strix4,0.5
         }), self.filename)
         self.assertEqual(self.get_csv_content(), target)
 
+    def test_saving_two_value(self):
+        saver = ResultSaver(save_dir=self.test_assets_dir,
+                            example_path=r"tests/assets/saver-example-two-value.csv")
+        arr = np.array([
+            [1,1.5],
+            [0.5,0.7],
+            [0.2,0.3]
+        ])
+
+        df = pd.DataFrame(arr)
+
+        target = '''ix,val1,val2
+0,1.0,1.5
+1,0.5,0.7
+2,0.2,0.3
+'''
+        saver.save(arr, self.filename)
+        with open(os.path.join(self.test_assets_dir, self.filename), "r", encoding="utf-8") as f:
+            content = f.read()
+        self.assertEqual(content, target)
+
+        saver.save(df, self.filename)
+        with open(os.path.join(self.test_assets_dir, self.filename), "r", encoding="utf-8") as f:
+            content = f.read()
+        self.assertEqual(content, target)
+
     def test_saving_without_head(self):
         saver = ResultSaver(save_dir=self.test_assets_dir,
                             example_path=r"tests/assets/saver-example-without-head.csv")
