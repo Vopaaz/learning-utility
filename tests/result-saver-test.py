@@ -307,3 +307,13 @@ strix4,0.5
 
         self.run_all_X_s(saver, target)
 
+    def test_saving_without_index(self):
+        saver = ResultSaver(save_dir=self.test_assets_dir,
+                            example_path=r"tests/assets/saver-example-without-index.csv")
+        target = '''1.0
+0.0
+1.5
+0.5
+'''
+
+        self.run_all_X_s(saver, target)

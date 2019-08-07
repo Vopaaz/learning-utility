@@ -275,12 +275,21 @@ class ResultSaver(object):
         with open(self.example_path, "r", encoding=enc) as f:
             df = pd.read_csv(f, header=None, nrows=1)
 
-        has_header = is_string_dtype(df.iloc[0,:])
+        has_header = is_string_dtype(df.iloc[0, :])
 
         with open(self.example_path, "r", encoding=enc) as f:
             sniffer = csv.Sniffer()
             content = f.read()
-            dialect = sniffer.sniff(content)
+            try:
+                dialect = sniffer.sniff(content)
+                has_header = sniffer.has_header(content) or has_header
+
+            except:
+                fixed_content = "\n".join(
+                    line+"," for line in content.split("\n"))
+                dialect = sniffer.sniff(fixed_content)
+                has_header = sniffer.has_header(fixed_content) or has_header
+
             dialect_kwargs = {
                 "sep": dialect.delimiter,
                 "line_terminator": dialect.lineterminator,
@@ -289,10 +298,10 @@ class ResultSaver(object):
                 "escapechar": dialect.escapechar,
                 "quoting": dialect.quoting
             }
-            has_header = sniffer.has_header(content) or has_header
 
             f.seek(0, 0)
-            example_df = pd.read_csv(f, dialect=dialect, index_col=False, header=0 if has_header else None)
+            example_df = pd.read_csv(
+                f, dialect=dialect, index_col=False, header=0 if has_header else None)
 
         X = pd.DataFrame(X)
 
