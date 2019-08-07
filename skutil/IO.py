@@ -9,6 +9,9 @@ import numpy as np
 
 from skutil._exceptions import SpeculationFailedError
 from pandas.api.types import is_string_dtype, is_numeric_dtype
+import joblib
+import inspect
+from collections import OrderedDict
 
 
 class DataReader(object):
@@ -345,3 +348,24 @@ class ResultSaver(object):
                 f.write(f"{filename}: {str(memo)}" + "\n")
 
         return res
+
+
+def intermediate_result(identifiers="__all__"):
+    def inner(func):
+        def wrapper(*args, **kwargs):
+            signature = inspect.signature(func)
+            applied_args = OrderedDict({
+                k: v.default
+                for k, v in signature.parameters.items()
+            })
+            items = list(applied_args.items())
+            for ix, arg in enumerate(args):
+                applied_args[items[ix][0]] = arg
+            for key, value in kwargs.items():
+                applied_args[key] = value
+            print(applied_args)
+            print(func.__name__)
+            print(inspect.getfile(func))
+            return func(*args, **kwargs)
+        return wrapper
+    return inner
