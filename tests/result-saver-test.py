@@ -30,48 +30,6 @@ class AutoSaverGeneralTest(AutoSaverTest):
         AutoSaver(save_dir=self.test_assets_dir)
         self.assertTrue(os.path.isdir(self.test_assets_dir))
 
-    def test_init(self):
-        with self.assertRaises(Exception):
-            _ = AutoSaver(save_func=lambda X: X.writeline,
-                            example_path=r"tests/assets/data1.csv")
-
-        with self.assertRaises(Exception):
-            _ = AutoSaver(save_func=isinstance,
-                            example_path=r"tests/assets/data1.csv")
-
-        with self.assertRaises(ValueError):
-            _ = AutoSaver(save_func=lambda X: X.to_clipboard,
-                            example_path=r"tests/assets/data1.csv")
-
-        _ = AutoSaver()
-        _ = AutoSaver(save_func=lambda X: X.to_csv)
-
-    def test_save_by_other_func(self):
-        data = '''Only some texts.
-Only some texts.
-Only some texts.
-'''
-
-        def save_func(X, path, encoding):
-            with open(path, "w", encoding=encoding) as f:
-                f.write(str(X))
-                return "Success"
-
-        saver = AutoSaver(save_dir=self.test_assets_dir,
-                            save_func=save_func, encoding="utf-8")
-        res = saver.save(data, "test_save_by_other_func_1.txt")
-        with open(os.path.join(self.test_assets_dir, "test_save_by_other_func_1.txt"), "r", encoding="utf-8") as f:
-            content = f.read()
-        self.assertEqual(data, content)
-        self.assertEqual(res, "Success")
-
-        saver = AutoSaver(save_dir=self.test_assets_dir, save_func=save_func)
-        res = saver.save(data, "test_save_by_other_func_2.txt", encoding="GBK")
-        with open(os.path.join(self.test_assets_dir, "test_save_by_other_func_1.txt"), "r", encoding="GBK") as f:
-            content = f.read()
-        self.assertEqual(data, content)
-        self.assertEqual(res, "Success")
-
     def test_save_by_csv_param_error(self):
         with self.assertRaises(ValueError):
             AutoSaver(self.test_assets_dir,
