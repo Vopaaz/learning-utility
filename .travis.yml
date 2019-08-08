@@ -7,7 +7,8 @@ python:
 install:
   - pip install -r requirements.txt
   - pip install .
-  - pip install codecov coverage nose
+  - pip install codecov coverage nose nbformat nbconvert jupyter_client ipykernel
+  - python -m ipykernel install --user
 
 script:
   - nosetests --with-coverage --cover-package=skutil
