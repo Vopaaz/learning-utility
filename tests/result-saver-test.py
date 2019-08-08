@@ -53,10 +53,8 @@ class AutoSaverGeneralTest(AutoSaverTest):
 '''
         saver = AutoSaver(self.test_assets_dir, index=True, header=False)
         saver.save(df, name_1, line_terminator="\n")
-
         with open(os.path.join(self.test_assets_dir, name_1), "r", encoding="utf-8") as f:
             content = f.read()
-
         self.assertTrue(content, content_1)
 
         name_2 = "test_save_by_csv_using_kwargs_2.csv"
@@ -66,11 +64,16 @@ class AutoSaverGeneralTest(AutoSaverTest):
 '''
         saver = AutoSaver(index=False)
         saver.save(df, os.path.join(self.test_assets_dir, name_2), sep=";")
-
         with open(os.path.join(self.test_assets_dir, name_2), "r", encoding="utf-8") as f:
             content = f.read()
-
         self.assertTrue(content, content_2)
+
+        saver = AutoSaver(index=True, sep=",")
+        saver.save(df, os.path.join(self.test_assets_dir, name_2), sep=";", index=False)
+        with open(os.path.join(self.test_assets_dir, name_2), "r", encoding="utf-8") as f:
+            content = f.read()
+        self.assertTrue(content, content_2)
+
 
     def test_memo(self):
         saver = AutoSaver(self.test_assets_dir)
