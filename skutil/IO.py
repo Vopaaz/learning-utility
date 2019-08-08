@@ -185,7 +185,7 @@ class DataReader(object):
             f"Attibute 'val' of {self.__class__} object is read only.")
 
 
-class ResultSaver(object):
+class AutoSaver(object):
     def __init__(self, save_dir="", save_func="to_csv",  example_path=None, **save_kwargs):
         if example_path and save_kwargs:
             raise ValueError(
