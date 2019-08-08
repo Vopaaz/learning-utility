@@ -336,6 +336,7 @@ class AutoSaver(object):
 
 def checkpoint(func):
     save_dir = ".skutil-checkpoint"
+
     def get_name(applied_args, func):
         filename = inspect.getfile(func)
         ipython_filename_pattern = r"<ipython-input-\d+-(.{12})>"
@@ -351,7 +352,8 @@ def checkpoint(func):
             k: v for k, v in applied_args.items() if k != ("cls" if is_class_function(func) else "self")
         }
 
-        identify_args_str = "-".join([str(k)+":"+str(v) for k,v in identify_args.items()])
+        identify_args_str = "-".join([str(k)+":"+str(v)
+                                      for k, v in identify_args.items()])
 
         full_str = f"{file_info}-{qualname}-{identify_args_str}"
         return full_str
