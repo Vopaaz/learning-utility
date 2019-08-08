@@ -186,32 +186,17 @@ class DataReader(object):
 
 
 class AutoSaver(object):
-    def __init__(self, save_dir="", save_func="to_csv",  example_path=None, **save_kwargs):
-        if example_path and save_kwargs:
+    def __init__(self, save_dir="", example_path=None, **default_kwargs):
+        if example_path and default_kwargs:
             raise ValueError(
                 "You cannot set both 'example_path' and give other saving kwargs at the same time.")
-
-        if save_func == "to_csv":
-            self.__using_to_csv = True
-        else:
-            assert callable(save_func)
-            self.__using_to_csv = False
-            self.save_func = save_func
-
-        if not self.__using_to_csv and example_path:
-            raise ValueError(
-                "If you are not using 'DataFrame.to_csv', then speculating format from result file will not work.")
 
         if save_dir and not os.path.exists(save_dir):
             os.mkdir(save_dir)
 
         self.save_dir = save_dir
         self.example_path = example_path
-        self.save_kwargs = save_kwargs
-
-    def __save_by_other_func(self, X, filename):
-        file_path = os.path.join(self.save_dir, filename)
-        return self.save_func(X, file_path, **self.__used_kwargs)
+        self.default_kwargs = default_kwargs
 
     def __save_by_to_csv(self, X, filename):
         if self.example_path and self.__used_kwargs:
@@ -336,12 +321,9 @@ class AutoSaver(object):
             return X.to_csv(fullpath, header=False, index=False, **dialect_kwargs)
 
     def save(self, X, filename, memo=None, **kwargs):
-        self.__used_kwargs = {**self.save_kwargs, **kwargs}
+        self.__used_kwargs = {**self.default_kwargs, **kwargs}
 
-        if self.__using_to_csv:
-            res = self.__save_by_to_csv(X, filename)
-        else:
-            res = self.__save_by_other_func(X, filename)
+        res = self.__save_by_to_csv(X, filename)
 
         if memo:
             with open(os.path.join(self.save_dir, "memo.txt"), "a+", encoding="utf-8") as f:
