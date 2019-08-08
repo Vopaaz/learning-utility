@@ -6,12 +6,14 @@ import operator
 import chardet
 import csv
 import numpy as np
+import re
 
 from skutil._exceptions import SpeculationFailedError
 from pandas.api.types import is_string_dtype, is_numeric_dtype
 import joblib
 import inspect
 from collections import OrderedDict
+import hashlib
 
 
 class DataReader(object):
@@ -332,22 +334,62 @@ class AutoSaver(object):
         return res
 
 
-def intermediate_result(identifiers="__all__"):
-    def inner(func):
-        def wrapper(*args, **kwargs):
-            signature = inspect.signature(func)
-            applied_args = OrderedDict({
-                k: v.default
-                for k, v in signature.parameters.items()
-            })
-            items = list(applied_args.items())
-            for ix, arg in enumerate(args):
-                applied_args[items[ix][0]] = arg
-            for key, value in kwargs.items():
-                applied_args[key] = value
-            print(applied_args)
-            print(func.__name__)
-            print(inspect.getfile(func))
-            return func(*args, **kwargs)
-        return wrapper
+def checkpoint(func):
+    save_dir = ".skutil-checkpoint"
+    def get_name(applied_args, func):
+        filename = inspect.getfile(func)
+        ipython_filename_pattern = r"<ipython-input-\d+-(.{12})>"
+        ipython_result = re.compile(ipython_filename_pattern).match(filename)
+        if ipython_result:
+            file_info = f"ipynb-{ipython_result.group(1)}"
+        else:
+            file_info, _ = os.path.splitext(os.path.basename(filename))
+
+        qualname = func.__qualname__
+        is_class_function = inspect.ismethod
+        identify_args = {
+            k: v for k, v in applied_args.items() if k != ("cls" if is_class_function(func) else "self")
+        }
+
+        identify_args_str = "-".join([str(k)+":"+str(v) for k,v in identify_args.items()])
+
+        full_str = f"{file_info}-{qualname}-{identify_args_str}"
+        return full_str
+
+    def get_hash(str_):
+        h = hashlib.md5()
+        h.update(str_.encode("utf-8"))
+        return h.hexdigest()
+
+    def inner(*args, __overwrite__=False, **kwargs):
+        if not os.path.exists(save_dir):
+            os.mkdir(save_dir)
+
+        # Get default args and kwargs
+        signature = inspect.signature(func)
+        applied_args = OrderedDict({
+            k: v.default
+            for k, v in signature.parameters.items() if k != "__overwrite__"
+        })
+
+        # update call args into applied_args
+        items = list(applied_args.items())
+        for ix, arg in enumerate(args):
+            applied_args[items[ix][0]] = arg
+        for key, value in kwargs.items():
+            applied_args[key] = value
+
+        if not isinstance(__overwrite__, bool):
+            raise TypeError("'__overwrite__' parameter must be a boolean type")
+
+        name = get_name(applied_args, func)
+        hash_val = get_hash(name)
+
+        cache_path = os.path.join(save_dir, f"{hash_val}.pkl")
+        if os.path.exists(cache_path) and not __overwrite__:
+            return joblib.load(cache_path)
+        else:
+            res = func(*args, **kwargs)
+            joblib.dump(res, cache_path)
+            return res
     return inner
