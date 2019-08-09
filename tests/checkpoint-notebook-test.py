@@ -1,5 +1,7 @@
 import nbformat
 import os
+import unittest
+import shutil
 
 from nbconvert.preprocessors import ExecutePreprocessor
 
@@ -25,7 +27,16 @@ def run_notebook(notebook_path):
 
     return nb, errors
 
+class NotebookTest(unittest.TestCase):
+    def test_notebook(self):
+        nb, errors = run_notebook(r'tests/checkpoint-notebook-test.ipynb')
+        self.assertEqual(errors, [])
 
-def test_notebook():
-    nb, errors = run_notebook(r'tests/checkpoint-notebook-test.ipynb')
-    assert not errors
+    def tearDown(self):
+        dir_name = ".skutil-checkpoint"
+        sub_dir_name = os.path.join("tests", dir_name)
+        if os.path.exists(dir_name):
+            shutil.rmtree(dir_name)
+
+        if os.path.exists(sub_dir_name):
+            shutil.rmtree(sub_dir_name)
