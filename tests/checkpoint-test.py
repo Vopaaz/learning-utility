@@ -6,6 +6,7 @@ import unittest
 import pandas as pd
 import numpy as np
 
+import datetime
 from skutil.IO import checkpoint
 
 RM = "Runned."
@@ -38,15 +39,12 @@ def adding_with_ignore(a, b=3):
     R()
     return a+b
 
-@checkpoint
-def df_as_input(df):
-    R()
-    return df
 
 @checkpoint
-def numpy_as_input(arr):
+def return_input(val):
     R()
-    return arr
+    return val
+
 
 class Foo(object):
     def __init__(self):
@@ -58,18 +56,40 @@ class Foo(object):
         return self.a
 
     @checkpoint
-    def with_args(self,b):
+    def with_args(self, b):
         R()
         return self.a + b
 
     @classmethod
     @checkpoint
-    def class_method(cls,a):
+    def class_method(cls, a):
         R()
         return a
 
 
 class CheckpointTest(unittest.TestCase):
+    arr1 = np.array([
+        [1],
+        [2]
+    ])
+
+    arr2 = np.array([
+        [1, 1],
+        [2, 2]
+    ])
+
+    df1 = pd.DataFrame({
+        "a": [1],
+        "b": [2]
+    })
+
+    df2 = pd.DataFrame({
+        "a": [1],
+        "b": [2.1]
+    })
+
+    s1 = pd.Series([1, 2, 3, 4])
+
     def setUp(self):
         self.M = io.StringIO()
         sys.stdout = self.M
@@ -142,82 +162,125 @@ class CheckpointTest(unittest.TestCase):
         self.assertEqual(adding_with_ignore(123), 2+3)
         self.not_runned()
 
-    def test_df_as_input(self):
-        df1 = pd.DataFrame({
-            "a":[1],
-            "b":[2]
-        })
+    def test_return_input(self):
 
-        self.assertTrue((df_as_input(df1)==df1).all().all())
+        self.assertTrue((return_input(self.df1) == self.df1).all().all())
         self.runned()
 
-        self.assertTrue((df_as_input(df1)==df1).all().all())
+        self.assertTrue((return_input(self.df1) == self.df1).all().all())
         self.not_runned()
 
-        df2 = pd.DataFrame({
-            "a":[1],
-            "b":[2.1]
-        })
-
-        self.assertTrue((df_as_input(df2)==df2).all().all())
+        self.assertTrue((return_input(self.df2) == self.df2).all().all())
         self.runned()
 
-        self.assertTrue((df_as_input(df2)==df2).all().all())
+        self.assertTrue((return_input(self.df2) == self.df2).all().all())
         self.not_runned()
 
-    def test_numpy_as_input(self):
-        arr1 = np.array([
-            [1],
-            [2]
-        ])
+    def test_return_input(self):
 
-        self.assertTrue((numpy_as_input(arr1)==arr1).all())
+        self.assertTrue((return_input(self.arr1) == self.arr1).all())
         self.runned()
 
-        self.assertTrue((numpy_as_input(arr1)==arr1).all())
+        self.assertTrue((return_input(self.arr1) == self.arr1).all())
         self.not_runned()
 
-        arr2 = np.array([
-            [1,1],
-            [2,2]
-        ])
-
-        self.assertTrue((numpy_as_input(arr2)==arr2).all())
+        self.assertTrue((return_input(self.arr2) == self.arr2).all())
         self.runned()
 
-        self.assertTrue((numpy_as_input(arr2)==arr2).all())
+        self.assertTrue((return_input(self.arr2) == self.arr2).all())
         self.not_runned()
 
     def test_method(self):
         f = Foo()
-        self.assertEqual(f.no_args(),f.a)
+        self.assertEqual(f.no_args(), f.a)
         self.runned()
 
-        self.assertEqual(f.no_args(),f.a)
+        self.assertEqual(f.no_args(), f.a)
         self.not_runned()
 
-        self.assertEqual(f.with_args(3),f.a+3)
+        self.assertEqual(f.with_args(3), f.a+3)
         self.runned()
 
-        self.assertEqual(f.with_args(3),f.a+3)
+        self.assertEqual(f.with_args(3), f.a+3)
         self.not_runned()
 
-        f.a=2
-        self.assertEqual(f.no_args(),f.a)
+        f.a = 2
+        self.assertEqual(f.no_args(), f.a)
         self.runned()
 
-        self.assertEqual(f.with_args(3),f.a+3)
+        self.assertEqual(f.with_args(3), f.a+3)
         self.runned()
 
     def test_class_method(self):
-        self.assertEqual(Foo.class_method(1),1)
+        self.assertEqual(Foo.class_method(1), 1)
         self.runned()
 
-        self.assertEqual(Foo.class_method(1),1)
+        self.assertEqual(Foo.class_method(1), 1)
         self.not_runned()
 
-        self.assertEqual(Foo.class_method(2.5),2.5)
+        self.assertEqual(Foo.class_method(2.5), 2.5)
         self.runned()
 
-        self.assertEqual(Foo.class_method(2.5),2.5)
+        self.assertEqual(Foo.class_method(2.5), 2.5)
         self.not_runned()
+
+    def test_class_with_df(self):
+        f = Foo()
+
+        f.a = self.df1
+        self.assertTrue((f.no_args() == f.a).all().all())
+        self.runned()
+
+        self.assertTrue((f.no_args() == f.a).all().all())
+        self.not_runned()
+
+        f.a = self.df2
+
+        self.assertTrue((f.no_args() == f.a).all().all())
+        self.runned()
+
+        self.assertTrue((f.no_args() == f.a).all().all())
+        self.not_runned()
+
+        f.a = self.s1
+
+        self.assertTrue((f.no_args() == f.a).all())
+        self.runned()
+
+        self.assertTrue((f.no_args() == f.a).all())
+        self.not_runned()
+
+        f.a = self.arr1
+
+        self.assertTrue((f.no_args() == f.a).all())
+        self.runned()
+
+        self.assertTrue((f.no_args() == f.a).all())
+        self.not_runned()
+
+    def test_time(self):
+        big = np.random.rand(1000000, 100)
+        start = datetime.datetime.now()
+        return_input(big)
+        stop = datetime.datetime.now()
+        self.runned()
+        self.assertLessEqual((stop-start).seconds, 10)
+
+        start = datetime.datetime.now()
+        return_input(big)
+        stop = datetime.datetime.now()
+        self.not_runned()
+        self.assertLessEqual((stop-start).seconds, 10)
+
+        big = pd.DataFrame(big)
+        start = datetime.datetime.now()
+        return_input(big)
+        stop = datetime.datetime.now()
+        self.runned()
+        self.assertLessEqual((stop-start).seconds, 10)
+
+        start = datetime.datetime.now()
+        return_input(big)
+        stop = datetime.datetime.now()
+        self.not_runned()
+        self.assertLessEqual((stop-start).seconds, 10)
