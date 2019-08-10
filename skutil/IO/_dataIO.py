@@ -206,7 +206,7 @@ class AutoSaver(object):
         else:
             if not isinstance(X, (pd.DataFrame, pd.Series)):
                 raise TypeError(
-                    f"When using 'to_csv', 'X' must be a pd.DataFrame or pd.Series, rather than {X.__class__} if you do not provide an example csv file, or are using self-defined keyword parameters.")
+                    f"'X' must be a pd.DataFrame or pd.Series, rather than {X.__class__} if you do not provide an example csv file, or are using self-defined keyword parameters.")
             return X.to_csv(os.path.join(self.save_dir, filename), **self.__used_kwargs)
 
     def __speculate_index(self, s):
@@ -250,7 +250,7 @@ class AutoSaver(object):
     def __save_by_to_csv_speculating(self, X, filename):
         if not isinstance(X, (pd.DataFrame, pd.Series, np.ndarray)):
             raise TypeError(
-                f"When using 'to_csv', 'X' must be either a pd.DataFrame, pd.Series or np.ndarray, rather than {X.__class__} if you provide an example csv file.")
+                f"'X' must be either a pd.DataFrame, pd.Series or np.ndarray, rather than {X.__class__} if you provide an example csv file.")
 
         fullpath = os.path.join(self.save_dir, filename)
 
