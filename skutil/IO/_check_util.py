@@ -21,24 +21,27 @@ def _get_file_info(obj):
     return file_info
 
 
-def _get_identify_str_for_cls_or_self(obj):
+def _get_identify_str_for_cls_or_object(obj):
     identify_dict = {}
     for attr in dir(obj):
         if attr.startswith("__") and attr.endswith("__"):
             pass
         else:
             value = getattr(obj, attr)
-            if inspect.ismethod(value) or inspect.isclass(value) or inspect.isfunction(value):
+            if inspect.ismethod(value) or inspect.isclass(value) or inspect.isfunction(value) or inspect.isbuiltin(value):
                 pass
+            elif isinstance(value, (pd.DataFrame, pd.Series)):
+                identify_dict[attr] = _hash_pd_object(value)
+            elif isinstance(value, np.ndarray):
+                identify_dict[attr] = _hash_np_array(value)
             else:
-                if isinstance(value, (pd.DataFrame, pd.Series)):
-                    identify_dict[attr] = _hash_pd_object(value)
-
-                elif isinstance(value, np.ndarray):
-                    identify_dict[attr] = _hash_np_array(value)
-
+                str_val = str(value)
+                if re.compile("<.*? object at \w{18}>").match(str_val):
+                    logging.warning(
+                        f"A complicated object is an attribute of {str(obj)}, it is highly likely to cause mistake when detecting whether there is checkpoint for this call.")
+                    pass
                 else:
-                    identify_dict[attr] = str(value) + str(type(value))
+                    identify_dict[attr] = str_val + str(type(value))
 
     return "-".join([k+":"+v for k, v in identify_dict.items()])
 
@@ -73,7 +76,13 @@ def _get_identify_str_for_value(value):
         return _hash_np_array(value)
 
     else:
-        return str(value) + str(type(value))
+        str_val = str(value)
+        if re.compile("<.*? object at \w{18}>").match(str_val):
+            logging.warning(
+                f"A complicated object is used as parameter, it may cause mistake when detecting whether there is checkpoint for this call.")
+            return _get_identify_str_for_cls_or_object(value)
+        else:
+            return str_val + str(type(value))
 
 
 def _get_identify_str_for_func(func, applied_args, ignore=[]):
@@ -86,16 +95,16 @@ def _get_identify_str_for_func(func, applied_args, ignore=[]):
             pass
 
         elif key in ("cls", "self"):
-            identify_args[key] = _get_identify_str_for_cls_or_self(value)
+            identify_args[key] = _get_identify_str_for_cls_or_object(value)
 
         elif inspect.isclass(value):
             logging.warning(
-                f"A class is used as the parameter of {str(value)}, it may cause mistake when detecting whether there is checkpoint for this call.")
+                f"A class is used as the parameter, it may cause mistake when detecting whether there is checkpoint for this call.")
             identify_args[key] = value.__qualname__
 
         elif inspect.ismethod(value) or inspect.isfunction(value):
             logging.warning(
-                f"A function is used as the parameter of {str(value)}, it may cause mistake when detecting whether there is checkpoint for this call.")
+                f"A function is used as the parameter, it may cause mistake when detecting whether there is checkpoint for this call.")
             tmp_applied_args = _get_applied_args(value, (), {})
             identify_args[key] = _get_identify_str_for_func(
                 value, tmp_applied_args)

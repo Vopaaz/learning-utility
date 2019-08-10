@@ -52,6 +52,12 @@ def always_return_1(*args, **kwargs):
     return 1
 
 
+@checkpoint
+def return_attr_a(obj):
+    R()
+    return obj.a
+
+
 class Foo(object):
     def __init__(self):
         self.a = 1
@@ -307,6 +313,21 @@ class CheckpointTest(unittest.TestCase):
         self.runned()
 
         self.assertEqual(adding_with_default(a=3), 3+3)
+        self.not_runned()
+
+    def test_with_object(self):
+        f = Foo()
+        self.assertEqual(return_attr_a(f), f.a)
+        self.runned()
+
+        self.assertEqual(return_attr_a(f), f.a)
+        self.not_runned()
+
+        f.a = 5
+        self.assertEqual(return_attr_a(f), f.a)
+        self.runned()
+
+        self.assertEqual(return_attr_a(f), f.a)
         self.not_runned()
 
     def test_time(self):
