@@ -8,6 +8,7 @@ import joblib
 import numpy as np
 from collections import OrderedDict
 
+
 def _get_file_info(obj):
     filename = inspect.getfile(obj)
     ipython_filename_pattern = r"<ipython-input-\d+-(.{12})>"
@@ -19,7 +20,8 @@ def _get_file_info(obj):
 
     return file_info
 
-def _get_name(applied_args, func):
+
+def _get_name(func, applied_args, ignore=[]):
     file_info = _get_file_info(func)
     qualname = func.__qualname__
     is_class_function = inspect.ismethod
@@ -27,6 +29,8 @@ def _get_name(applied_args, func):
     identify_args = {}
     for key, value in applied_args.items():
         if key == ("cls" if is_class_function(func) else "self"):
+            pass
+        elif key in ignore:
             pass
         elif inspect.isclass(value):
             logging.warning(
@@ -36,7 +40,7 @@ def _get_name(applied_args, func):
             logging.warning(
                 f"A function is used as the parameter of {str(value)}, it may cause mistake when detecting whether there is checkpoint for this call.")
             tmp_applied_args = _get_applied_args(value, (), {})
-            identify_args[key] = _get_name(tmp_applied_args, value)
+            identify_args[key] = _get_name(value, tmp_applied_args)
         elif isinstance(value, pd.DataFrame):
             if value.shape[0] > value.shape[1]:
                 identify_args[key] = pd.util.hash_pandas_object(
@@ -63,10 +67,12 @@ def _get_name(applied_args, func):
     logging.debug(f"Identification String: {full_str}")
     return full_str
 
+
 def _get_hash(str_):
     h = hashlib.md5()
     h.update(str_.encode("utf-8"))
     return h.hexdigest()
+
 
 def _get_applied_args(func, args, kwargs):
     # Get default args and kwargs
@@ -85,24 +91,42 @@ def _get_applied_args(func, args, kwargs):
 
     return applied_args
 
-def checkpoint(func):
+
+def checkpoint(ignore=[]):
     save_dir = ".skutil-checkpoint"
-    def inner(*args, __overwrite__=False, **kwargs):
-        if not os.path.exists(save_dir):
-            os.mkdir(save_dir)
 
-        if not isinstance(__overwrite__, bool):
-            raise TypeError("'__overwrite__' parameter must be a boolean type")
+    if callable(ignore):
+        param_is_callable = True
+        func = ignore
+        ignore = []
+    elif isinstance(ignore, (list, tuple)):
+        param_is_callable = False
+    else:
+        raise TypeError(f"Unsupported parameter type '{type(ignore)}'")
 
-        applied_args = _get_applied_args(func, args, kwargs)
-        name = _get_name(applied_args, func)
-        hash_val = _get_hash(name)
+    def wrapper(func):
+        def inner(*args, __overwrite__=False, **kwargs):
+            if not os.path.exists(save_dir):
+                os.mkdir(save_dir)
 
-        cache_path = os.path.join(save_dir, f"{hash_val}.pkl")
-        if os.path.exists(cache_path) and not __overwrite__:
-            return joblib.load(cache_path)
-        else:
-            res = func(*args, **kwargs)
-            joblib.dump(res, cache_path)
-            return res
-    return inner
+            if not isinstance(__overwrite__, bool):
+                raise TypeError(
+                    "'__overwrite__' parameter must be a boolean type")
+
+            applied_args = _get_applied_args(func, args, kwargs)
+            name = _get_name(func, applied_args, ignore)
+            hash_val = _get_hash(name)
+
+            cache_path = os.path.join(save_dir, f"{hash_val}.pkl")
+            if os.path.exists(cache_path) and not __overwrite__:
+                return joblib.load(cache_path)
+            else:
+                res = func(*args, **kwargs)
+                joblib.dump(res, cache_path)
+                return res
+        return inner
+
+    if param_is_callable:
+        return wrapper(func)
+    else:
+        return wrapper

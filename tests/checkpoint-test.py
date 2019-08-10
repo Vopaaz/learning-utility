@@ -28,6 +28,10 @@ def adding_with_default(a,b=3):
     R()
     return a+b
 
+@checkpoint(ignore=["a"])
+def addint_with_ignore(a,b=3):
+    R()
+    return a+b
 
 class CheckpointTest(unittest.TestCase):
     def setUp(self):
@@ -88,4 +92,17 @@ class CheckpointTest(unittest.TestCase):
         self.not_runned()
 
         self.assertEqual(adding_with_default(2,3),2+3)
+        self.not_runned()
+
+    def test_ignore(self):
+        self.assertEqual(addint_with_ignore(2,3), 2+3)
+        self.runned()
+
+        self.assertEqual(addint_with_ignore(3,3), 2+3)
+        self.not_runned()
+
+        self.assertEqual(addint_with_ignore(3,4), 3+4)
+        self.runned()
+
+        self.assertEqual(addint_with_ignore(123), 2+3)
         self.not_runned()
