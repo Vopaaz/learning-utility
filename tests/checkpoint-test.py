@@ -4,6 +4,8 @@ import shutil
 import sys
 import unittest
 from unittest.mock import MagicMock
+import pandas as pd
+import numpy as np
 
 from skutil.IO import checkpoint
 
@@ -33,9 +35,33 @@ def adding_with_default(a, b=3):
 
 
 @checkpoint(ignore=["a"])
-def addint_with_ignore(a, b=3):
+def adding_with_ignore(a, b=3):
     R()
     return a+b
+
+@checkpoint
+def df_as_input(df):
+    R()
+    return df
+
+@checkpoint
+def numpy_as_input(arr):
+    R()
+    return arr
+
+class Foo(object):
+    def __init__(self):
+        self.a = 1
+
+    @checkpoint
+    def no_args(self):
+        R()
+        return self.a
+
+    @checkpoint
+    def with_args(self,b):
+        R()
+        return self.a + b
 
 
 class CheckpointTest(unittest.TestCase):
@@ -99,14 +125,81 @@ class CheckpointTest(unittest.TestCase):
         self.not_runned()
 
     def test_ignore(self):
-        self.assertEqual(addint_with_ignore(2, 3), 2+3)
+        self.assertEqual(adding_with_ignore(2, 3), 2+3)
         self.runned()
 
-        self.assertEqual(addint_with_ignore(3, 3), 2+3)
+        self.assertEqual(adding_with_ignore(3, 3), 2+3)
         self.not_runned()
 
-        self.assertEqual(addint_with_ignore(3, 4), 3+4)
+        self.assertEqual(adding_with_ignore(3, 4), 3+4)
         self.runned()
 
-        self.assertEqual(addint_with_ignore(123), 2+3)
+        self.assertEqual(adding_with_ignore(123), 2+3)
         self.not_runned()
+
+    def test_df_as_input(self):
+        df1 = pd.DataFrame({
+            "a":[1],
+            "b":[2]
+        })
+
+        self.assertTrue((df_as_input(df1)==df1).all().all())
+        self.runned()
+
+        self.assertTrue((df_as_input(df1)==df1).all().all())
+        self.not_runned()
+
+        df2 = pd.DataFrame({
+            "a":[1],
+            "b":[2.1]
+        })
+
+        self.assertTrue((df_as_input(df2)==df2).all().all())
+        self.runned()
+
+        self.assertTrue((df_as_input(df2)==df2).all().all())
+        self.not_runned()
+
+    def test_numpy_as_input(self):
+        arr1 = np.array([
+            [1],
+            [2]
+        ])
+
+        self.assertTrue((numpy_as_input(arr1)==arr1).all())
+        self.runned()
+
+        self.assertTrue((numpy_as_input(arr1)==arr1).all())
+        self.not_runned()
+
+        arr2 = np.array([
+            [1,1],
+            [2,2]
+        ])
+
+        self.assertTrue((numpy_as_input(arr2)==arr2).all())
+        self.runned()
+
+        self.assertTrue((numpy_as_input(arr2)==arr2).all())
+        self.not_runned()
+
+    def test_method(self):
+        f = Foo()
+        self.assertEqual(f.no_args(),f.a)
+        self.runned()
+
+        self.assertEqual(f.no_args(),f.a)
+        self.not_runned()
+
+        self.assertEqual(f.with_args(3),f.a+3)
+        self.runned()
+
+        self.assertEqual(f.with_args(3),f.a+3)
+        self.not_runned()
+
+        f.a=2
+        self.assertEqual(f.no_args(),f.a)
+        self.runned()
+
+        self.assertEqual(f.with_args(3),f.a+3)
+        self.runned()
