@@ -7,8 +7,9 @@ from collections import OrderedDict
 
 import numpy as np
 import pandas as pd
+import warnings
 
-from skutil.IO._exceptions import NotDecoratableError
+from skutil.IO._exceptions import NotDecoratableError, ComplexParamsIdentifyWarning
 
 
 def _get_file_info(obj):
@@ -39,9 +40,7 @@ def _get_identify_str_for_cls_or_object(obj):
             else:
                 str_val = str(value)
                 if re.compile("<.*? object at \w{18}>").match(str_val):
-                    logging.warning(
-                        f"A complicated object is an attribute of {str(obj)}, it is highly likely to cause mistake when detecting whether there is checkpoint for this call.")
-                    pass
+                    warnings.warn(ComplexParamsIdentifyWarning(f"A complicated object is an attribute of {str(obj)}"))
                 else:
                     identify_dict[attr] = str_val + str(type(value))
 
@@ -80,8 +79,7 @@ def _get_identify_str_for_value(value):
     else:
         str_val = str(value)
         if re.compile(r"<.*? object at \w{12,20}>").match(str_val):
-            logging.warning(
-                f"A complicated object is used as parameter, it may cause mistake when detecting whether there is checkpoint for this call.")
+            warnings.warn(ComplexParamsIdentifyWarning(f"A complicated object is used as parameter"))
             return _get_identify_str_for_cls_or_object(value)
         else:
             return str_val + str(type(value))
@@ -111,13 +109,11 @@ def _get_identify_str_for_func(func, applied_args, ignore=[]):
             identify_args[key] = _get_identify_str_for_cls_or_object(value)
 
         elif inspect.isclass(value):
-            logging.warning(
-                f"A class is used as the parameter, it may cause mistake when detecting whether there is checkpoint for this call.")
+            warnings.warn(ComplexParamsIdentifyWarning(f"A class is used as the parameter"))
             identify_args[key] = value.__qualname__
 
         elif inspect.ismethod(value) or inspect.isfunction(value):
-            logging.warning(
-                f"A function is used as the parameter, it may cause mistake when detecting whether there is checkpoint for this call.")
+            warnings.warn(ComplexParamsIdentifyWarning(f"A function is used as the parameter"))
             tmp_applied_args = _get_applied_args(value, (), {})
             identify_args[key] = _get_identify_str_for_func(
                 value, tmp_applied_args)
