@@ -1,8 +1,8 @@
-import nbformat
 import os
-import unittest
 import shutil
+import unittest
 
+import nbformat
 from nbconvert.preprocessors import ExecutePreprocessor
 
 

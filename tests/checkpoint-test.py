@@ -1,10 +1,11 @@
-import unittest
-from skutil.IO import checkpoint
-from unittest.mock import MagicMock
 import io
-import sys
 import os
 import shutil
+import sys
+import unittest
+from unittest.mock import MagicMock
+
+from skutil.IO import checkpoint
 
 RM = "Runned."
 
@@ -18,20 +19,24 @@ def empty():
     R()
     return 0
 
+
 @checkpoint
-def adding(a,b):
+def adding(a, b):
     R()
     return a+b
 
+
 @checkpoint
-def adding_with_default(a,b=3):
+def adding_with_default(a, b=3):
     R()
     return a+b
+
 
 @checkpoint(ignore=["a"])
-def addint_with_ignore(a,b=3):
+def addint_with_ignore(a, b=3):
     R()
     return a+b
+
 
 class CheckpointTest(unittest.TestCase):
     def setUp(self):
@@ -49,7 +54,6 @@ class CheckpointTest(unittest.TestCase):
     def not_runned(self):
         self.assertEqual(self.M.getvalue(), "")
         self.clear()
-
 
     def tearDown(self):
         sys.stdout = sys.__stdout__
@@ -69,39 +73,39 @@ class CheckpointTest(unittest.TestCase):
         self.not_runned()
 
     def test_adding(self):
-        self.assertEqual(adding(2,3),2+3)
+        self.assertEqual(adding(2, 3), 2+3)
         self.runned()
 
-        self.assertEqual(adding(3,3),3+3)
+        self.assertEqual(adding(3, 3), 3+3)
         self.runned()
 
-        self.assertEqual(adding(2,3),2+3)
+        self.assertEqual(adding(2, 3), 2+3)
         self.not_runned()
 
-        self.assertEqual(adding(2.0,3.0),2.0+3.0)
+        self.assertEqual(adding(2.0, 3.0), 2.0+3.0)
         self.runned()
 
     def test_adding_with_default(self):
-        self.assertEqual(adding_with_default(2,3),2+3)
+        self.assertEqual(adding_with_default(2, 3), 2+3)
         self.runned()
 
-        self.assertEqual(adding_with_default(3),3+3)
+        self.assertEqual(adding_with_default(3), 3+3)
         self.runned()
 
-        self.assertEqual(adding_with_default(2),2+3)
+        self.assertEqual(adding_with_default(2), 2+3)
         self.not_runned()
 
-        self.assertEqual(adding_with_default(2,3),2+3)
+        self.assertEqual(adding_with_default(2, 3), 2+3)
         self.not_runned()
 
     def test_ignore(self):
-        self.assertEqual(addint_with_ignore(2,3), 2+3)
+        self.assertEqual(addint_with_ignore(2, 3), 2+3)
         self.runned()
 
-        self.assertEqual(addint_with_ignore(3,3), 2+3)
+        self.assertEqual(addint_with_ignore(3, 3), 2+3)
         self.not_runned()
 
-        self.assertEqual(addint_with_ignore(3,4), 3+4)
+        self.assertEqual(addint_with_ignore(3, 4), 3+4)
         self.runned()
 
         self.assertEqual(addint_with_ignore(123), 2+3)

@@ -1,12 +1,13 @@
-import inspect
-import re
-import os
-import logging
-import pandas as pd
 import hashlib
+import inspect
+import logging
+import os
+import re
+from collections import OrderedDict
+
 import joblib
 import numpy as np
-from collections import OrderedDict
+import pandas as pd
 
 
 def _get_file_info(obj):
