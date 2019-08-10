@@ -22,7 +22,7 @@ def _get_file_info(obj):
     return file_info
 
 
-def _get_name(func, applied_args, ignore=[]):
+def _get_identify_str_for_func(func, applied_args, ignore=[]):
     file_info = _get_file_info(func)
     qualname = func.__qualname__
     is_class_function = inspect.ismethod
@@ -41,7 +41,7 @@ def _get_name(func, applied_args, ignore=[]):
             logging.warning(
                 f"A function is used as the parameter of {str(value)}, it may cause mistake when detecting whether there is checkpoint for this call.")
             tmp_applied_args = _get_applied_args(value, (), {})
-            identify_args[key] = _get_name(value, tmp_applied_args)
+            identify_args[key] = _get_identify_str_for_func(value, tmp_applied_args)
         elif isinstance(value, pd.DataFrame):
             if value.shape[0] > value.shape[1]:
                 identify_args[key] = pd.util.hash_pandas_object(
@@ -115,7 +115,7 @@ def checkpoint(ignore=[]):
                     "'__overwrite__' parameter must be a boolean type")
 
             applied_args = _get_applied_args(func, args, kwargs)
-            name = _get_name(func, applied_args, ignore)
+            name = _get_identify_str_for_func(func, applied_args, ignore)
             hash_val = _get_hash(name)
 
             cache_path = os.path.join(save_dir, f"{hash_val}.pkl")
