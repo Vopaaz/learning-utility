@@ -46,6 +46,12 @@ def return_input(val):
     return val
 
 
+@checkpoint
+def always_return_1(*args, **kwargs):
+    R()
+    return 1
+
+
 class Foo(object):
     def __init__(self):
         self.a = 1
@@ -190,6 +196,12 @@ class CheckpointTest(unittest.TestCase):
         self.assertTrue((return_input(self.arr2) == self.arr2).all())
         self.not_runned()
 
+        self.assertTrue((return_input(self.arr2.T) == self.arr2.T).all())
+        self.runned()
+
+        self.assertTrue((return_input(self.arr2.T) == self.arr2.T).all())
+        self.not_runned()
+
     def test_method(self):
         f = Foo()
         self.assertEqual(f.no_args(), f.a)
@@ -259,7 +271,7 @@ class CheckpointTest(unittest.TestCase):
         self.not_runned()
 
     def test_time(self):
-        big = np.random.rand(1000000, 100)
+        big = np.random.rand(500000, 100)
         start = datetime.datetime.now()
         return_input(big)
         stop = datetime.datetime.now()
@@ -284,3 +296,42 @@ class CheckpointTest(unittest.TestCase):
         stop = datetime.datetime.now()
         self.not_runned()
         self.assertLessEqual((stop-start).seconds, 10)
+
+    def test_overwrite(self):
+        self.assertEqual(adding_with_default(3, 3), 3+3)
+        self.runned()
+
+        self.assertEqual(adding_with_default(3, 3, __overwrite__=True), 3+3)
+        self.runned()
+
+        self.assertEqual(adding_with_default(3), 3+3)
+        self.not_runned()
+
+        with self.assertRaises(TypeError):
+            adding_with_default(3, __overwrite__=1)
+
+    def test_class_or_func_as_param(self):
+        self.assertIs(always_return_1(empty), 1)
+        self.runned()
+
+        self.assertIs(always_return_1(empty), 1)
+        self.not_runned()
+
+        self.assertIs(always_return_1(Foo), 1)
+        self.runned()
+
+        self.assertIs(always_return_1(Foo), 1)
+        self.not_runned()
+
+    def test_kwargs(self):
+        self.assertEqual(adding_with_default(a=3,b=5), 3+5)
+        self.runned()
+
+        self.assertEqual(adding_with_default(a=3,b=5), 3+5)
+        self.not_runned()
+
+        self.assertEqual(adding_with_default(a=3), 3+3)
+        self.runned()
+
+        self.assertEqual(adding_with_default(a=3), 3+3)
+        self.not_runned()
