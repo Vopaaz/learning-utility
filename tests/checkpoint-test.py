@@ -270,33 +270,6 @@ class CheckpointTest(unittest.TestCase):
         self.assertTrue((f.no_args() == f.a).all())
         self.not_runned()
 
-    def test_time(self):
-        big = np.random.rand(500000, 100)
-        start = datetime.datetime.now()
-        return_input(big)
-        stop = datetime.datetime.now()
-        self.runned()
-        self.assertLessEqual((stop-start).seconds, 10)
-
-        start = datetime.datetime.now()
-        return_input(big)
-        stop = datetime.datetime.now()
-        self.not_runned()
-        self.assertLessEqual((stop-start).seconds, 10)
-
-        big = pd.DataFrame(big)
-        start = datetime.datetime.now()
-        return_input(big)
-        stop = datetime.datetime.now()
-        self.runned()
-        self.assertLessEqual((stop-start).seconds, 10)
-
-        start = datetime.datetime.now()
-        return_input(big)
-        stop = datetime.datetime.now()
-        self.not_runned()
-        self.assertLessEqual((stop-start).seconds, 10)
-
     def test_overwrite(self):
         self.assertEqual(adding_with_default(3, 3), 3+3)
         self.runned()
@@ -324,10 +297,10 @@ class CheckpointTest(unittest.TestCase):
         self.not_runned()
 
     def test_kwargs(self):
-        self.assertEqual(adding_with_default(a=3,b=5), 3+5)
+        self.assertEqual(adding_with_default(a=3, b=5), 3+5)
         self.runned()
 
-        self.assertEqual(adding_with_default(a=3,b=5), 3+5)
+        self.assertEqual(adding_with_default(a=3, b=5), 3+5)
         self.not_runned()
 
         self.assertEqual(adding_with_default(a=3), 3+3)
@@ -335,3 +308,30 @@ class CheckpointTest(unittest.TestCase):
 
         self.assertEqual(adding_with_default(a=3), 3+3)
         self.not_runned()
+
+    def test_time(self):
+        big = np.random.rand(500000, 100)
+        start = datetime.datetime.now()
+        return_input(big)
+        stop = datetime.datetime.now()
+        self.runned()
+        self.assertLessEqual((stop-start).seconds, 10)
+
+        start = datetime.datetime.now()
+        return_input(big)
+        stop = datetime.datetime.now()
+        self.not_runned()
+        self.assertLessEqual((stop-start).seconds, 10)
+
+        big = pd.DataFrame(big)
+        start = datetime.datetime.now()
+        return_input(big)
+        stop = datetime.datetime.now()
+        self.runned()
+        self.assertLessEqual((stop-start).seconds, 10)
+
+        start = datetime.datetime.now()
+        return_input(big)
+        stop = datetime.datetime.now()
+        self.not_runned()
+        self.assertLessEqual((stop-start).seconds, 10)
