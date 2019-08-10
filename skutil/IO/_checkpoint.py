@@ -33,31 +33,38 @@ def _get_identify_str_for_func(func, applied_args, ignore=[]):
             pass
         elif key in ignore:
             pass
+
         elif inspect.isclass(value):
             logging.warning(
                 f"A class is used as the parameter of {str(value)}, it may cause mistake when detecting whether there is checkpoint for this call.")
             identify_args[key] = value.__qualname__
+
         elif inspect.ismethod(value) or inspect.isfunction(value):
             logging.warning(
                 f"A function is used as the parameter of {str(value)}, it may cause mistake when detecting whether there is checkpoint for this call.")
             tmp_applied_args = _get_applied_args(value, (), {})
-            identify_args[key] = _get_identify_str_for_func(value, tmp_applied_args)
+            identify_args[key] = _get_identify_str_for_func(
+                value, tmp_applied_args)
+
         elif isinstance(value, pd.DataFrame):
             if value.shape[0] > value.shape[1]:
                 identify_args[key] = pd.util.hash_pandas_object(
-                    value.T).to_json(orient='values')
+                    value.T).to_csv(index=True, header=True)
             else:
                 identify_args[key] = pd.util.hash_pandas_object(
-                    value).to_json(orient='values')
+                    value).to_csv(index=True, header=True)
+
         elif isinstance(value, pd.Series):
             identify_args[key] = pd.util.hash_pandas_object(
-                pd.DataFrame(value).T).to_json(orient='values')
+                pd.DataFrame(value).T).to_csv(index=True, header=True)
+
         elif isinstance(value, np.ndarray):
             if value.flags['C_CONTIGUOUS']:
                 identify_args[key] = hashlib.md5(value).hexdigest()
             else:
                 identify_args[key] = hashlib.md5(
                     np.ascontiguousarray(value)).hexdigest()
+
         else:
             identify_args[key] = str(value) + str(type(value))
 
