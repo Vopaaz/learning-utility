@@ -8,6 +8,8 @@ from collections import OrderedDict
 import numpy as np
 import pandas as pd
 
+from skutil.IO._exceptions import NotDecoratableError
+
 
 def _get_file_info(obj):
     filename = inspect.getfile(obj)
@@ -83,6 +85,17 @@ def _get_identify_str_for_value(value):
             return _get_identify_str_for_cls_or_object(value)
         else:
             return str_val + str(type(value))
+
+
+def _check_handleable(obj):
+    if (inspect.isgenerator(obj) or
+        inspect.isgeneratorfunction(obj) or
+        inspect.iscoroutine(obj) or
+        inspect.iscoroutinefunction(obj) or
+        inspect.isasyncgen(obj) or
+        inspect.isasyncgenfunction(obj)
+        ):
+        raise NotDecoratableError(obj)
 
 
 def _get_identify_str_for_func(func, applied_args, ignore=[]):
