@@ -10,7 +10,8 @@ import pandas as pd
 from pandas.api.types import is_numeric_dtype, is_string_dtype
 
 from skutil.IO._exceptions import SpeculationFailedError
-
+import warnings
+from skutil.IO._exceptions import DuplicateSettingWarning
 
 class DataReader(object):
     _instances = {}
@@ -107,8 +108,7 @@ class DataReader(object):
                 raise ValueError(
                     "Newly set train_path is different from the cached value. If you do want this, please specify '_id=N' as a parameter.")
         else:
-            logging.warning(
-                f"A train path is set after the first initialization of {self.__class__}.")
+            warnings.warn(DuplicateSettingWarning("train", self))
             self._train_path = value
 
     @property
@@ -129,8 +129,7 @@ class DataReader(object):
                 raise ValueError(
                     "Newly set test_path is different from the cached value. If you do want this, please specify '_id=N' as a parameter.")
         else:
-            logging.warning(
-                f"A test path is set after the first initialization of {self.__class__}.")
+            warnings.warn(DuplicateSettingWarning("test", self))
             self._test_path = value
 
     @property
@@ -151,8 +150,7 @@ class DataReader(object):
                 raise ValueError(
                     "Newly set val_path is different from the cached value. If you do want this, please specify '_id=N' as a parameter.")
         else:
-            logging.warning(
-                f"A val path is set after the first initialization of {self.__class__}.")
+            warnings.warn(DuplicateSettingWarning("val", self))
             self._val_path = value
 
     @property

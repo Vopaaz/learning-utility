@@ -4,6 +4,7 @@ import logging
 import pandas as pd
 from singleton_slave_1 import get_reader_1
 from singleton_slave_2 import get_reader_2
+from skutil.IO._exceptions import DuplicateSettingWarning
 
 
 class DataReaderTest(unittest.TestCase):
@@ -65,7 +66,7 @@ class DataReaderTest(unittest.TestCase):
 
         with self.assertRaises(AttributeError):
             _ = reader.train_path
-        with self.assertLogs(level=logging.WARNING):
+        with self.assertWarns(DuplicateSettingWarning):
             reader.train_path = train_path
         with self.assertRaises(ValueError):
             reader.train_path = test_path
@@ -73,7 +74,7 @@ class DataReaderTest(unittest.TestCase):
 
         with self.assertRaises(AttributeError):
             _ = reader.test_path
-        with self.assertLogs(level=logging.WARNING):
+        with self.assertWarns(DuplicateSettingWarning):
             reader.test_path = test_path
         with self.assertRaises(ValueError):
             reader.test_path = train_path
@@ -81,7 +82,7 @@ class DataReaderTest(unittest.TestCase):
 
         with self.assertRaises(AttributeError):
             _ = reader.val_path
-        with self.assertLogs(level=logging.WARNING):
+        with self.assertWarns(DuplicateSettingWarning):
             reader.val_path = val_path
         with self.assertRaises(ValueError):
             reader.val_path = train_path
@@ -111,7 +112,7 @@ class DataReaderTest(unittest.TestCase):
         with self.assertRaises(ValueError):
             _ = DataReader(self.path2, _id=_id)
 
-        with self.assertLogs(level=logging.WARNING):
+        with self.assertWarns(DuplicateSettingWarning):
             _ = DataReader(self.path1, self.path2, _id=_id)
 
         with self.assertRaises(ValueError):
