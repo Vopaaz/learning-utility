@@ -7,7 +7,7 @@ import numpy as np
 import os
 import shutil
 
-from skutil._exceptions import SpeculationFailedError
+from skutil.IO._exceptions import SpeculationFailedError
 
 
 class AutoSaverTest(unittest.TestCase):
