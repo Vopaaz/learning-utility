@@ -44,17 +44,17 @@ def _get_identify_str_for_cls_or_self(obj):
 
 
 def _hash_pd_object(obj):
-    if isinstance(obj, pd.DataFrame):
-        if obj.shape[0] > obj.shape[1]:
-            return pd.util.hash_pandas_object(
-                obj.T).to_csv(index=True, header=True)
-        else:
-            return pd.util.hash_pandas_object(
-                obj).to_csv(index=True, header=True)
+    value = obj.to_numpy()
+    value_hash = _hash_np_array(value)
+    index = obj.index.values
+    index_hash = _hash_np_array(index)
 
-    elif isinstance(obj, pd.Series):
-        return pd.util.hash_pandas_object(
-            pd.DataFrame(obj).T).to_csv(index=True, header=True)
+    if isinstance(obj, pd.DataFrame):
+        columns = obj.columns.values
+        columns_hash = _hash_np_array(columns)
+        return f"{value_hash}{index_hash}{columns_hash}"
+    else:
+        return f"{value_hash}{index_hash}"
 
 
 def _hash_np_array(arr):
@@ -82,9 +82,6 @@ def _get_identify_str_for_func(func, applied_args, ignore=[]):
 
     identify_args = {}
     for key, value in applied_args.items():
-        logging.debug(key)
-        logging.debug(inspect.ismethod(func))
-        logging.debug(func)
         if key in ignore:
             pass
 
