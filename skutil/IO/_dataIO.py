@@ -1,14 +1,15 @@
-import threading
-import logging
-import os
-import operator
-import chardet
 import csv
+import logging
+import operator
+import os
+import threading
+
+import chardet
 import numpy as np
 import pandas as pd
+from pandas.api.types import is_numeric_dtype, is_string_dtype
 
 from skutil.IO._exceptions import SpeculationFailedError
-from pandas.api.types import is_string_dtype, is_numeric_dtype
 
 
 class DataReader(object):
