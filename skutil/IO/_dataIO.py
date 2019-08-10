@@ -239,7 +239,7 @@ class AutoSaver(object):
                 if example_spec[1] == 0:
                     X.iloc[:, 0] = np.arange(X.shape[0])
                 elif example_spec[1] == 1:
-                    X.iloc[:, 1] = np.arange(1, X.shape[0]+1)
+                    X.iloc[:, 0] = np.arange(1, X.shape[0]+1)
                 else:
                     raise e
         else:

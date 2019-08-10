@@ -206,6 +206,17 @@ class AutoSaverSpeculatingTest(AutoSaverTest):
             content = f.read()
         self.assertEqual(content, target)
 
+    def test_ix_starts_1(self):
+        saver = AutoSaver(save_dir=self.test_assets_dir,
+                            example_path=r"tests/assets/saver-example-ix-starts-1.csv")
+        target = '''index,value
+1,1.0
+2,0.0
+3,1.5
+4,0.5
+'''
+        self.run_all_X_s(saver, target)
+
     def test_other_sep(self):
         saver = AutoSaver(save_dir=self.test_assets_dir,
                             example_path=r"tests/assets/saver-example-other-sep.csv")
