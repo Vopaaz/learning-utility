@@ -63,6 +63,12 @@ class Foo(object):
         R()
         return self.a + b
 
+    @classmethod
+    @checkpoint
+    def class_method(cls,a):
+        R()
+        return a
+
 
 class CheckpointTest(unittest.TestCase):
     def setUp(self):
@@ -203,3 +209,16 @@ class CheckpointTest(unittest.TestCase):
 
         self.assertEqual(f.with_args(3),f.a+3)
         self.runned()
+
+    def test_class_method(self):
+        self.assertEqual(Foo.class_method(1),1)
+        self.runned()
+
+        self.assertEqual(Foo.class_method(1),1)
+        self.not_runned()
+
+        self.assertEqual(Foo.class_method(2.5),2.5)
+        self.runned()
+
+        self.assertEqual(Foo.class_method(2.5),2.5)
+        self.not_runned()
