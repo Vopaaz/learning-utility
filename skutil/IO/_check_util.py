@@ -79,7 +79,7 @@ def _get_identify_str_for_value(value):
 
     else:
         str_val = str(value)
-        if re.compile("<.*? object at \w{18}>").match(str_val):
+        if re.compile(r"<.*? object at \w{12,20}>").match(str_val):
             logging.warning(
                 f"A complicated object is used as parameter, it may cause mistake when detecting whether there is checkpoint for this call.")
             return _get_identify_str_for_cls_or_object(value)
