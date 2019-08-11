@@ -9,6 +9,10 @@ import numpy as np
 import pandas as pd
 import warnings
 
+import nbformat
+from nbconvert import PythonExporter
+
+
 from skutil.IO._exceptions import NotDecoratableError, ComplexParamsIdentifyWarning, NotInlineCheckableError
 
 
@@ -163,3 +167,12 @@ def _get_applied_args(func, args, kwargs):
         applied_args[key] = value
 
     return applied_args
+
+
+def _get_code_in_notebook(notebookPath):
+    with open(notebookPath, "r") as f:
+        nb = nbformat.reads(f.read(), nbformat.NO_CONVERT)
+
+    exporter = PythonExporter()
+    source, meta = exporter.from_notebook_node(nb)
+    return source

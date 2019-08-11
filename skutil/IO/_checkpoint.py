@@ -10,16 +10,18 @@ from skutil.IO._check_util import (_get_applied_args,
                                    _get_identify_str_for_cls_or_object,
                                    _get_identify_str_for_value,
                                    _check_handleable,
-                                   _check_inline_handleable
+                                   _check_inline_handleable,
+                                   _get_code_in_notebook
                                    )
 
 from skutil.IO._exceptions import SkipWithBlock
 import sys
 import inspect
 import logging
+import glob
+
 
 _save_dir = ".skutil-checkpoint"
-    save_dir = ".skutil-checkpoint"
 
 
 def checkpoint(ignore=[]):
@@ -61,3 +63,171 @@ def checkpoint(ignore=[]):
         return wrapper(func)
     else:
         return wrapper
+
+
+class InlineCheckpoint(object):
+    def __init__(self, *, watch, produce, _id):
+        assert isinstance(watch, (list, tuple))
+        assert isinstance(produce, (list, tuple))
+        self.watch = watch
+        self.produce = produce
+        self._id = _id
+
+        if not os.path.exists(_save_dir):
+            os.mkdir(_save_dir)
+
+        call_f = inspect.currentframe().f_back
+        self.local = call_f.f_locals
+
+        self.__check_watch_produce()
+
+        status_str = self.__get_status_str()
+        self.status_hash = _get_hash_of_str(status_str)
+
+        logging.debug(f"status_str: {status_str}")
+
+        self.skip = self.__checkpoint_exists()
+
+    def __check_watch_produce(self):
+        for i in self.watch:
+            assert isinstance(i, str)
+            e = ValueError(f"{i} is not a valid identifier.")
+            ref_list = i.split(".")
+            if ref_list[0] not in self.local:
+                raise e
+            curr = self.local[ref_list[0]]
+            for ref in ref_list[1:]:
+                if not hasattr(curr, ref):
+                    raise e
+                else:
+                    curr = getattr(curr, ref)
+
+        for i in self.produce:
+            assert isinstance(i, str)
+            e = ValueError(f"{i} is not a valid identifier.")
+            if "." in i:
+                ref_list = i.split(".")
+                if ref_list[0] not in self.local:
+                    raise e
+                curr = self.local[ref_list[0]]
+                for ref in ref_list[1:-1]:
+                    if not hasattr(curr, ref):
+                        raise e
+                    else:
+                        curr = getattr(curr, ref)
+
+                pattern = "^[a-zA-Z_][a-zA-Z_0-9]*$"
+                if not re.compile(pattern).match(ref_list[-1]):
+                    raise e
+
+    def __get_status_str(self):
+        watch_dict = {}
+
+        for i in self.watch:
+            value = self.local[i]
+            _check_inline_handleable(value)
+            if inspect.ismethod(value) or inspect.isfunction(value):
+                watch_dict[i] = _get_identify_str_for_func(value)
+            else:
+                watch_dict[i] = _get_identify_str_for_value(value)
+
+        watch_str = "-".join([f"{k}:{v}" for k,
+                              v in watch_dict.items()])
+
+        if "_ih" in self.local and "In" in self.local and "__file__" not in self.local:
+            file_name = "jupyter-notebook"
+            source_dir = self.local["_dh"][0]
+            maybe_sources_path = glob.glob(os.path.join(
+                source_dir, "*.ipynb"), recursive=False)
+            source = "\n".join([_get_code_in_notebook(path) for path in maybe_sources_path])
+        elif "__file__" in self.local:
+            file_name = os.path.basename(self.local["__file__"])
+            with open(self.local["__file__"], "r", encoding="utf-8") as f:
+                source = f.read()
+        else:
+            raise Exception(
+                "Unknown error when detecting jupyter or .py environment.")
+
+        sourcelines = source.split("\n")
+        pattern = r'''(\s*)with .*?\(\s*watch\s*=\s*[\[\(]\s*['"]%s['"][\]\)]\s*,\s+produce\s*=\s*[\[\(]\s*['"]%s['"][\]\)]\s*,\s*_id\s*=\s*['"]%s['"]\).*?:''' % (
+            '''['"]\s*,\s*['"]'''.join(self.watch), '''['"]\s*,\s*['"]'''.join(self.produce), self._id)
+        matcher = re.compile(pattern)
+        for lineno, line in enumerate(sourcelines):
+            res = matcher.match(line)
+            if res:
+                start_line = lineno
+                indent = res.group(1)
+                break
+
+        with_statement_lines = []
+        for i in range(lineno+1, len(sourcelines)):
+            line = sourcelines[i]
+            pattern = indent+r"\s+\S+"
+            matcher = re.compile(pattern)
+            if matcher.match(line):
+                with_statement_lines.append(line)
+            else:
+                break
+
+        with_statement = ";".join([i.strip() for i in with_statement_lines])
+
+        identify_str = f"{self._id}-{file_name}-{watch_str}-{with_statement}"
+        return identify_str
+
+    def __checkpoint_exists(self):
+        for i in self.produce:
+            if not os.path.exists(self.__cache_file_name(i)):
+                return False
+        return True
+
+    def __enter__(self):
+        if self.skip:
+            sys.settrace(lambda *args, **keys: None)
+            frame = sys._getframe(1)
+            frame.f_trace = self._trace
+        return self
+
+    def _trace(self, frame, event, arg):
+        raise SkipWithBlock()
+
+    def __exit__(self, type, value, traceback):
+        if self.skip:
+            for i in self.produce:
+                self.__retrieve(i)
+        else:
+            for i in self.produce:
+                self.__save(i)
+
+        if type is None:
+            return
+        if issubclass(type, SkipWithBlock):
+            return True
+
+    def __cache_file_name(self, i):
+        return os.path.join(_save_dir, f"{self.status_hash}-{i}.pkl")
+
+    def __retrieve(self, i):
+        name = self.__cache_file_name(i)
+        obj = joblib.load(name)
+
+        if "." not in i:
+            self.local[i] = obj
+        else:
+            ref_list = i.split(".")
+            curr = self.local[ref_list[0]]
+            for ref in ref_list[1:-1]:
+                curr = getattr(curr, ref)
+
+            setattr(curr, ref_list[-1], obj)
+
+    def __save(self, i):
+        if "." not in i:
+            obj = self.local[i]
+        else:
+            ref_list = i.split(".")
+            curr = self.local[ref_list[0]]
+            for ref in ref_list[1:]:
+                curr = getattr(curr, ref)
+            obj = curr
+
+        joblib.dump(obj, self.__cache_file_name(i))
