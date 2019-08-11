@@ -97,16 +97,6 @@ class CheckpointTest(CheckpointBaseTest):
 
     s1 = pd.Series([1, 2, 3, 4])
 
-    def tearDown(self):
-        sys.stdout = sys.__stdout__
-        dir_name = ".skutil-checkpoint"
-        sub_dir_name = os.path.join("tests", dir_name)
-        if os.path.exists(dir_name):
-            shutil.rmtree(dir_name)
-
-        if os.path.exists(sub_dir_name):
-            shutil.rmtree(sub_dir_name)
-
     def test_empty(self):
         self.assertEqual(empty(), 0)
         self.runned()

@@ -1,6 +1,8 @@
 import io
 import unittest
 import sys
+import os
+import shutil
 
 RM = "Runned."
 
@@ -25,3 +27,13 @@ class CheckpointBaseTest(unittest.TestCase):
     def not_runned(self):
         self.assertEqual(self.M.getvalue(), "")
         self.clear()
+
+    def tearDown(self):
+        sys.stdout = sys.__stdout__
+        dir_name = ".skutil-checkpoint"
+        sub_dir_name = os.path.join("tests", dir_name)
+        if os.path.exists(dir_name):
+            shutil.rmtree(dir_name)
+
+        if os.path.exists(sub_dir_name):
+            shutil.rmtree(sub_dir_name)
