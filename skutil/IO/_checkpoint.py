@@ -136,10 +136,7 @@ class InlineCheckpoint(object):
 
         if "_ih" in self.local and "In" in self.local and "__file__" not in self.local:
             file_name = "jupyter-notebook"
-            source_dir = self.local["_dh"][0]
-            maybe_sources_path = glob.glob(os.path.join(
-                source_dir, "*.ipynb"), recursive=False)
-            source = "\n".join([_get_code_in_notebook(path) for path in maybe_sources_path])
+            source = "\n".join(self.local["In"])
         elif "__file__" in self.local:
             file_name = os.path.basename(self.local["__file__"])
             with open(self.local["__file__"], "r", encoding="utf-8") as f:
@@ -152,15 +149,19 @@ class InlineCheckpoint(object):
         pattern = r'''(\s*)with .*?\(\s*watch\s*=\s*[\[\(]\s*['"]%s['"][\]\)]\s*,\s+produce\s*=\s*[\[\(]\s*['"]%s['"][\]\)]\s*,\s*_id\s*=\s*['"]%s['"]\).*?:''' % (
             '''['"]\s*,\s*['"]'''.join(self.watch), '''['"]\s*,\s*['"]'''.join(self.produce), self._id)
         matcher = re.compile(pattern)
+
+        start_line = None
         for lineno, line in enumerate(sourcelines):
             res = matcher.match(line)
             if res:
                 start_line = lineno
                 indent = res.group(1)
-                break
+
+        if start_line is None:
+            raise Exception("Failed to check the content in the with-statement.")
 
         with_statement_lines = []
-        for i in range(lineno+1, len(sourcelines)):
+        for i in range(start_line+1, len(sourcelines)):
             line = sourcelines[i]
             pattern = indent+r"\s+\S+"
             matcher = re.compile(pattern)
