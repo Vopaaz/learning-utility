@@ -77,7 +77,8 @@ class InlineCheckpoint(object):
             os.mkdir(_save_dir)
 
         call_f = inspect.currentframe().f_back
-        self.local = call_f.f_locals
+        self.locals = call_f.f_locals
+        self.globals = {**self.locals, **call_f.f_globals}
 
         self.__check_watch_produce()
 
@@ -93,9 +94,9 @@ class InlineCheckpoint(object):
             assert isinstance(i, str)
             e = ValueError(f"{i} is not a valid identifier.")
             ref_list = i.split(".")
-            if ref_list[0] not in self.local:
+            if ref_list[0] not in self.locals:
                 raise e
-            curr = self.local[ref_list[0]]
+            curr = self.locals[ref_list[0]]
             for ref in ref_list[1:]:
                 if not hasattr(curr, ref):
                     raise e
@@ -107,9 +108,9 @@ class InlineCheckpoint(object):
             e = ValueError(f"{i} is not a valid identifier.")
             if "." in i:
                 ref_list = i.split(".")
-                if ref_list[0] not in self.local:
+                if ref_list[0] not in self.locals:
                     raise e
-                curr = self.local[ref_list[0]]
+                curr = self.locals[ref_list[0]]
                 for ref in ref_list[1:-1]:
                     if not hasattr(curr, ref):
                         raise e
@@ -124,7 +125,7 @@ class InlineCheckpoint(object):
         watch_dict = {}
 
         for i in self.watch:
-            value = self.local[i]
+            value = self.locals[i]
             _check_inline_handleable(value)
             if inspect.ismethod(value) or inspect.isfunction(value):
                 watch_dict[i] = _get_identify_str_for_func(value)
@@ -134,14 +135,15 @@ class InlineCheckpoint(object):
         watch_str = "-".join([f"{k}:{v}" for k,
                               v in watch_dict.items()])
 
-        if "_ih" in self.local and "In" in self.local and "__file__" not in self.local:
+        if "_ih" in self.globals and "In" in self.globals and "__file__" not in self.globals:
             file_name = "jupyter-notebook"
-            source = "\n".join(self.local["In"])
-        elif "__file__" in self.local:
-            file_name = os.path.basename(self.local["__file__"])
-            with open(self.local["__file__"], "r", encoding="utf-8") as f:
+            source = "\n".join(self.globals["In"])
+        elif "__file__" in self.globals:
+            file_name = os.path.basename(self.globals["__file__"])
+            with open(self.globals["__file__"], "r", encoding="utf-8") as f:
                 source = f.read()
         else:
+            logging.debug(self.globals)
             raise Exception(
                 "Unknown error when detecting jupyter or .py environment.")
 
@@ -158,7 +160,8 @@ class InlineCheckpoint(object):
                 indent = res.group(1)
 
         if start_line is None:
-            raise Exception("Failed to check the content in the with-statement.")
+            raise Exception(
+                "Failed to check the content in the with-statement.")
 
         with_statement_lines = []
         for i in range(start_line+1, len(sourcelines)):
@@ -212,10 +215,10 @@ class InlineCheckpoint(object):
         obj = joblib.load(name)
 
         if "." not in i:
-            self.local[i] = obj
+            self.locals[i] = obj
         else:
             ref_list = i.split(".")
-            curr = self.local[ref_list[0]]
+            curr = self.locals[ref_list[0]]
             for ref in ref_list[1:-1]:
                 curr = getattr(curr, ref)
 
@@ -223,10 +226,10 @@ class InlineCheckpoint(object):
 
     def __save(self, i):
         if "." not in i:
-            obj = self.local[i]
+            obj = self.locals[i]
         else:
             ref_list = i.split(".")
-            curr = self.local[ref_list[0]]
+            curr = self.locals[ref_list[0]]
             for ref in ref_list[1:]:
                 curr = getattr(curr, ref)
             obj = curr
