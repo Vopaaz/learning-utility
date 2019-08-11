@@ -110,3 +110,5 @@ _build/
 explore/
 
 .skutil-checkpoint/
+
+*.skutil-checkpoint/
