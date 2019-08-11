@@ -9,7 +9,7 @@ import numpy as np
 import pandas as pd
 import warnings
 
-from skutil.IO._exceptions import NotDecoratableError, ComplexParamsIdentifyWarning
+from skutil.IO._exceptions import NotDecoratableError, ComplexParamsIdentifyWarning, NotInlineCheckableError
 
 
 def _get_file_info(obj):
@@ -40,7 +40,8 @@ def _get_identify_str_for_cls_or_object(obj):
             else:
                 str_val = str(value)
                 if re.compile("<.*? object at \w{18}>").match(str_val):
-                    warnings.warn(ComplexParamsIdentifyWarning(f"A complicated object is an attribute of {str(obj)}"))
+                    warnings.warn(ComplexParamsIdentifyWarning(
+                        f"A complicated object is an attribute of {str(obj)}"))
                 else:
                     identify_dict[attr] = str_val + str(type(value))
 
@@ -79,25 +80,34 @@ def _get_identify_str_for_value(value):
     else:
         str_val = str(value)
         if re.compile(r"<.*? object at \w{12,20}>").match(str_val):
-            warnings.warn(ComplexParamsIdentifyWarning(f"A complicated object is used as parameter"))
+            warnings.warn(ComplexParamsIdentifyWarning(
+                f"A complicated object is used as parameter"))
             return _get_identify_str_for_cls_or_object(value)
         else:
             return str_val + str(type(value))
 
 
+def _is_general_handleable(obj):
+    return not (inspect.isgenerator(obj) or
+                inspect.isgeneratorfunction(obj) or
+                inspect.iscoroutine(obj) or
+                inspect.iscoroutinefunction(obj) or
+                inspect.isasyncgen(obj) or
+                inspect.isasyncgenfunction(obj)
+                )
+
+
 def _check_handleable(obj):
-    if (inspect.isgenerator(obj) or
-        inspect.isgeneratorfunction(obj) or
-        inspect.iscoroutine(obj) or
-        inspect.iscoroutinefunction(obj) or
-        inspect.isasyncgen(obj) or
-        inspect.isasyncgenfunction(obj)
-        ):
+    if not _is_general_handleable(obj):
         raise NotDecoratableError(obj)
 
 
+def _check_inline_handleable(obj):
+    if not _is_general_handleable(obj):
+        raise NotInlineCheckableError(obj)
+
+
 def _get_identify_str_for_func(func, applied_args, ignore=[]):
-    file_info = _get_file_info(func)
     qualname = func.__qualname__
 
     identify_args = {}
@@ -109,11 +119,13 @@ def _get_identify_str_for_func(func, applied_args, ignore=[]):
             identify_args[key] = _get_identify_str_for_cls_or_object(value)
 
         elif inspect.isclass(value):
-            warnings.warn(ComplexParamsIdentifyWarning(f"A class is used as the parameter"))
+            warnings.warn(ComplexParamsIdentifyWarning(
+                f"A class is used as the parameter"))
             identify_args[key] = value.__qualname__
 
         elif inspect.ismethod(value) or inspect.isfunction(value):
-            warnings.warn(ComplexParamsIdentifyWarning(f"A function is used as the parameter"))
+            warnings.warn(ComplexParamsIdentifyWarning(
+                f"A function is used as the parameter"))
             tmp_applied_args = _get_applied_args(value, (), {})
             identify_args[key] = _get_identify_str_for_func(
                 value, tmp_applied_args)
@@ -121,10 +133,10 @@ def _get_identify_str_for_func(func, applied_args, ignore=[]):
         else:
             identify_args[key] = _get_identify_str_for_value(value)
 
-    identify_args_str = "-".join([k+":"+v for k,
+    identify_args_str = "-".join([f"{k}:{v}" for k,
                                   v in identify_args.items()])
 
-    full_str = f"{file_info}-{qualname}-{identify_args_str}"
+    full_str = f"{qualname}-{identify_args_str}"
     logging.debug(f"Identification String: {full_str}")
     return full_str
 
