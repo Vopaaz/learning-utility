@@ -1,10 +1,5 @@
-import io
-import os
-import shutil
-import sys
-import unittest
-import pandas as pd
 import numpy as np
+import pandas as pd
 
 import datetime
 from skutil.IO import checkpoint
@@ -75,27 +70,6 @@ class Foo(object):
 
 
 class CheckpointTest(CheckpointBaseTest):
-    arr1 = np.array([
-        [1],
-        [2]
-    ])
-
-    arr2 = np.array([
-        [1, 1],
-        [2, 2]
-    ])
-
-    df1 = pd.DataFrame({
-        "a": [1],
-        "b": [2]
-    })
-
-    df2 = pd.DataFrame({
-        "a": [1],
-        "b": [2.1]
-    })
-
-    s1 = pd.Series([1, 2, 3, 4])
 
     def test_empty(self):
         self.assertEqual(empty(), 0)
