@@ -78,7 +78,7 @@ class InlineCheckpoint(object):
 
         call_f = inspect.currentframe().f_back
         self.locals = call_f.f_locals
-        self.globals = {**self.locals, **call_f.f_globals}
+        self.globals = call_f.f_globals
 
         self.__check_watch_produce()
 
