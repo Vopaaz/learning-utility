@@ -1,6 +1,5 @@
 from skutil.IO import InlineCheckpoint
 from checkpoint_test_base import R, CheckpointBaseTest
-import unittest
 import numpy as np
 import pandas as pd
 
@@ -96,6 +95,3 @@ class InlineCheckpointTest(CheckpointBaseTest):
             (add_give_c_in_obj(self.arr1,self.arr3)==self.arr1+self.arr3).all()
             )
         self.not_runned()
-
-if __name__ == "__main__":
-    unittest.main()
