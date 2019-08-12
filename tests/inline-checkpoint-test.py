@@ -1,6 +1,3 @@
-import sys
-sys.path.append(".")
-
 from skutil.IO import InlineCheckpoint
 from checkpoint_test_base import R, CheckpointBaseTest
 import unittest
