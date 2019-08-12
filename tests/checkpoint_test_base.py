@@ -3,6 +3,8 @@ import unittest
 import sys
 import os
 import shutil
+import numpy as np
+import pandas as pd
 
 RM = "Runned."
 
@@ -12,6 +14,28 @@ def R():
 
 
 class CheckpointBaseTest(unittest.TestCase):
+    arr1 = np.array([
+        [1],
+        [2]
+    ])
+
+    arr2 = np.array([
+        [1, 1],
+        [2, 2]
+    ])
+
+    df1 = pd.DataFrame({
+        "a": [1],
+        "b": [2]
+    })
+
+    df2 = pd.DataFrame({
+        "a": [1],
+        "b": [2.1]
+    })
+
+    s1 = pd.Series([1, 2, 3, 4])
+
     def setUp(self):
         self.M = io.StringIO()
         sys.stdout = self.M
