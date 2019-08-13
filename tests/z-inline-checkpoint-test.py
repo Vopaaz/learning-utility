@@ -23,6 +23,40 @@ def add_give_c_in_obj(a, b):
 
     return f.c
 
+def watch_obj_value(a):
+    f = Foo()
+    f.a = a
+
+    with InlineCheckpoint(watch=["f.a"], produce=["f.c"], _id="add_give_c"):
+        R()
+        f.c = a
+
+    return f.c
+
+def fail_1():
+    with InlineCheckpoint(watch=["a"], produce=["b"], _id="fail_1"):
+        R()
+        b = a
+    return b
+
+def fail_2():
+    f = Foo()
+    with InlineCheckpoint(watch=["f.a"], produce=["b"], _id="fail_2"):
+        R()
+        b = f.a
+    return b
+
+def multi_level(a):
+    f = Foo()
+    f.f = Foo()
+    f.f.f = Foo()
+    f.f.f.a = a
+
+    with InlineCheckpoint(watch=["f.f.f.a"], produce=["f.f.b"], _id="multi_level"):
+        R()
+        f.f.b = f.f.f.a
+    return f.f.b
+
 class InlineCheckpointTest(CheckpointBaseTest):
     arr3 = np.array([
         [1,2,4,7],
@@ -94,4 +128,37 @@ class InlineCheckpointTest(CheckpointBaseTest):
         self.assertTrue(
             (add_give_c_in_obj(self.arr1,self.arr3)==self.arr1+self.arr3).all()
             )
+        self.not_runned()
+
+    def test_raise(self):
+        with self.assertRaises(ValueError):
+            fail_1()
+
+        with self.assertRaises(ValueError):
+            fail_2()
+
+    def test_watch_obj_value(self):
+        self.assertEqual(watch_obj_value(1),1)
+        self.runned()
+
+        self.assertEqual(watch_obj_value(2),2)
+        self.runned()
+
+        self.assertEqual(watch_obj_value(1),1)
+        self.not_runned()
+
+        self.assertEqual(watch_obj_value(2),2)
+        self.not_runned()
+
+    def test_multi_level(self):
+        self.assertEqual(multi_level(1),1)
+        self.runned()
+
+        self.assertEqual(multi_level(2),2)
+        self.runned()
+
+        self.assertEqual(multi_level(1),1)
+        self.not_runned()
+
+        self.assertEqual(multi_level(2),2)
         self.not_runned()
