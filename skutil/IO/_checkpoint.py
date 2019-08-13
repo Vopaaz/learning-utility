@@ -88,23 +88,30 @@ class InlineCheckpoint(object):
 
         self.skip = self.__checkpoint_exists()
 
+    def __get_watch(self,i):
+        assert isinstance(i, str)
+        e = ValueError(f"{i} is not a valid identifier.")
+        ref_list = i.split(".")
+        if ref_list[0] not in self.locals:
+            raise e
+        curr = self.locals[ref_list[0]]
+        for ref in ref_list[1:]:
+            if not hasattr(curr, ref):
+                raise e
+            else:
+                curr = getattr(curr, ref)
+        return curr
+
+
     def __check_watch_produce(self):
         for i in self.watch:
-            assert isinstance(i, str)
-            e = ValueError(f"{i} is not a valid identifier.")
-            ref_list = i.split(".")
-            if ref_list[0] not in self.locals:
-                raise e
-            curr = self.locals[ref_list[0]]
-            for ref in ref_list[1:]:
-                if not hasattr(curr, ref):
-                    raise e
-                else:
-                    curr = getattr(curr, ref)
+            self.__get_watch(i)
 
         for i in self.produce:
             assert isinstance(i, str)
             e = ValueError(f"{i} is not a valid identifier.")
+            pattern = "^[a-zA-Z_][a-zA-Z_0-9]*$"
+
             if "." in i:
                 ref_list = i.split(".")
                 if ref_list[0] not in self.locals:
@@ -116,15 +123,17 @@ class InlineCheckpoint(object):
                     else:
                         curr = getattr(curr, ref)
 
-                pattern = "^[a-zA-Z_][a-zA-Z_0-9]*$"
                 if not re.compile(pattern).match(ref_list[-1]):
+                    raise e
+            else:
+                if not re.compile(pattern).match(i):
                     raise e
 
     def __get_status_str(self):
         watch_dict = {}
 
         for i in self.watch:
-            value = self.locals[i]
+            value = self.__get_watch(i)
             _check_inline_handleable(value)
             if inspect.ismethod(value) or inspect.isfunction(value):
                 watch_dict[i] = _get_identify_str_for_func(value)
@@ -210,8 +219,7 @@ class InlineCheckpoint(object):
         return os.path.join(_save_dir, f"{self.status_hash}-{i}.pkl")
 
     def __retrieve(self, i):
-        name = self.__cache_file_name(i)
-        obj = joblib.load(name)
+        obj = joblib.load(self.__cache_file_name(i))
 
         if "." not in i:
             self.locals[i] = obj
