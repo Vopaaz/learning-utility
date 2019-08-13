@@ -9,6 +9,7 @@ from skutil.IO import InlineCheckpoint
 from checkpoint_test_base import R, CheckpointBaseTest
 import numpy as np
 import pandas as pd
+from skutil.IO._exceptions import InlineEnvironmentWarning
 
 def add_give_c(a, b):
     c = "reset"
@@ -84,11 +85,21 @@ class InlineCheckpointTest(CheckpointBaseTest):
     })
 
     def test_add_give_c(self):
-        self.assertEqual(add_give_c(1,2),1+2)
-        self.runned()
+        with self.assertWarns(InlineEnvironmentWarning):
+            self.assertEqual(add_give_c(1,2),1+2)
+            self.runned()
 
-        self.assertEqual(add_give_c(1,3),1+3)
-        self.runned()
+        with self.assertWarns(InlineEnvironmentWarning):
+            self.assertEqual(add_give_c(1,3),1+3)
+            self.runned()
+
+        with self.assertWarns(InlineEnvironmentWarning):
+            self.assertEqual(add_give_c(1,2),1+2)
+            self.runned()
+
+        with self.assertWarns(InlineEnvironmentWarning):
+            self.assertEqual(add_give_c(1,3),1+3)
+            self.runned()
 
     def test_add_give_c_in_obj(self):
         self.assertEqual(add_give_c_in_obj(1,2),1+2)
