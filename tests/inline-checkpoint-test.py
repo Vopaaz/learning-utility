@@ -1,10 +1,3 @@
-'''
-InlineCheckpoint hacks the trace, which is used by coverage.py to check code coverage.
-Every code executed after the "settrace()" will not be tracked.
-To get a more accurate code coverage report, this file name starts with z,
-which make nosetests execute this test suite the last.
-'''
-
 from skutil.IO import InlineCheckpoint
 from checkpoint_test_base import R, CheckpointBaseTest
 import numpy as np
