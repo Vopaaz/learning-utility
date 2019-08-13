@@ -64,6 +64,14 @@ def multi_level(a):
         f.f.b = f.f.f.a
     return f.f.b
 
+def default_id(a):
+    f = Foo()
+    f.a = a
+    with InlineCheckpoint(watch=["f.a"], produce=["f.b"]):
+        R()
+        f.b = f.a
+    return f.b
+
 class InlineCheckpointTest(CheckpointBaseTest):
     arr3 = np.array([
         [1,2,4,7],
@@ -168,4 +176,17 @@ class InlineCheckpointTest(CheckpointBaseTest):
         self.not_runned()
 
         self.assertEqual(multi_level(2),2)
+        self.not_runned()
+
+    def test_default_id(self):
+        self.assertEqual(default_id(1),1)
+        self.runned()
+
+        self.assertEqual(default_id(2),2)
+        self.runned()
+
+        self.assertEqual(default_id(1),1)
+        self.not_runned()
+
+        self.assertEqual(default_id(2),2)
         self.not_runned()

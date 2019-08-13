@@ -65,7 +65,7 @@ def checkpoint(ignore=[]):
 
 
 class InlineCheckpoint(object):
-    def __init__(self, *, watch, produce, _id):
+    def __init__(self, *, watch, produce, _id="default"):
         assert isinstance(watch, (list, tuple))
         assert isinstance(produce, (list, tuple))
         self.watch = watch
@@ -156,8 +156,13 @@ class InlineCheckpoint(object):
                 "Unknown error when detecting jupyter or .py environment.")
 
         sourcelines = source.split("\n")
-        pattern = r'''(\s*)with .*?\(\s*watch\s*=\s*[\[\(]\s*['"]%s['"][\]\)]\s*,\s+produce\s*=\s*[\[\(]\s*['"]%s['"][\]\)]\s*,\s*_id\s*=\s*['"]%s['"]\).*?:''' % (
-            '''['"]\s*,\s*['"]'''.join(self.watch), '''['"]\s*,\s*['"]'''.join(self.produce), self._id)
+        if self._id != "default":
+            pattern = r'''(\s*)with .*?\(\s*watch\s*=\s*[\[\(]\s*['"]%s['"][\]\)]\s*,\s+produce\s*=\s*[\[\(]\s*['"]%s['"][\]\)]\s*,\s*_id\s*=\s*['"]%s['"]\).*?:''' % (
+                '''['"]\s*,\s*['"]'''.join(self.watch), '''['"]\s*,\s*['"]'''.join(self.produce), self._id)
+        else:
+            pattern = r'''(\s*)with .*?\(\s*watch\s*=\s*[\[\(]\s*['"]%s['"][\]\)]\s*,\s+produce\s*=\s*[\[\(]\s*['"]%s['"][\]\)]\s*(?:,\s*_id\s*=\s*['"]%s['"])?\).*?:''' % (
+                '''['"]\s*,\s*['"]'''.join(self.watch), '''['"]\s*,\s*['"]'''.join(self.produce), self._id)
+
         matcher = re.compile(pattern)
 
         start_line = None
