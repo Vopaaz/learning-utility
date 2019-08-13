@@ -40,6 +40,8 @@ class CheckpointBaseTest(unittest.TestCase):
         self.M = io.StringIO()
         sys.stdout = self.M
 
+        self.trace = sys.gettrace()
+
     def clear(self):
         self.M.truncate(0)
         self.M.seek(0)
@@ -61,3 +63,5 @@ class CheckpointBaseTest(unittest.TestCase):
 
         if os.path.exists(sub_dir_name):
             shutil.rmtree(sub_dir_name)
+
+        sys.settrace(self.trace)
