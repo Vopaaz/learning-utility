@@ -167,12 +167,3 @@ def _get_applied_args(func, args, kwargs):
         applied_args[key] = value
 
     return applied_args
-
-
-def _get_code_in_notebook(notebookPath):
-    with open(notebookPath, "r") as f:
-        nb = nbformat.reads(f.read(), nbformat.NO_CONVERT)
-
-    exporter = PythonExporter()
-    source, meta = exporter.from_notebook_node(nb)
-    return source
