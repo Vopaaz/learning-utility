@@ -37,7 +37,9 @@ class InlineEnvironmentWarning(UserWarning):
         super().__init__()
 
     def __str__(self):
-        return "InlineCheckpoint is only functional in '__main__', while you are trying to use it inside a function or method. The 'produce' will not be cached and the computation will always happen."
+        return '''InlineCheckpoint is only functional in '__main__' to auto-cache a variable, while you are trying to use it inside a function or method.
+The 'produce' will not be cached and the computation will always happen.
+Please refer to https://scikit-utility.readthedocs.io/en/latest/ for alternative solutions.'''
 
 
 class SkipWithBlock(Exception):
