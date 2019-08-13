@@ -13,11 +13,12 @@ from skutil.IO._check_util import (_get_applied_args,
                                    _check_inline_handleable,
                                    )
 
-from skutil.IO._exceptions import SkipWithBlock
+from skutil.IO._exceptions import SkipWithBlock, InlineEnvironmentWarning
 import sys
 import inspect
 import logging
 import glob
+import warnings
 
 
 _save_dir = ".skutil-checkpoint"
@@ -86,9 +87,9 @@ class InlineCheckpoint(object):
 
         logging.debug(f"status_str: {status_str}")
 
-        self.skip = self.__checkpoint_exists()
+        self.skip = self.__check_skip()
 
-    def __get_watch(self,i):
+    def __get_watch(self, i):
         assert isinstance(i, str)
         e = ValueError(f"{i} is not a valid identifier.")
         ref_list = i.split(".")
@@ -101,7 +102,6 @@ class InlineCheckpoint(object):
             else:
                 curr = getattr(curr, ref)
         return curr
-
 
     def __check_watch_produce(self):
         for i in self.watch:
@@ -196,6 +196,15 @@ class InlineCheckpoint(object):
             if not os.path.exists(self.__cache_file_name(i)):
                 return False
         return True
+
+    def __check_skip(self):
+        if "__name__" not in self.locals or self.locals["__name__"] != "__main__":
+            for i in self.produce:
+                if "." not in i:
+                    warnings.warn(InlineEnvironmentWarning())
+                    return False
+
+        return self.__checkpoint_exists()
 
     def __enter__(self):
         if self.skip:

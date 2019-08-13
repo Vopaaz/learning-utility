@@ -8,10 +8,12 @@ class NotDecoratableError(Exception):
         super().__init__(
             f"{str(obj)} cannot be decorated by checkpoint, it may be a generator or a coroutine.")
 
+
 class NotInlineCheckableError(Exception):
     def __init__(self, obj):
         super().__init__(
             f"{str(obj)} cannot be used for 'watch' parameter in InlineCheckpoint.")
+
 
 class DuplicateSettingWarning(UserWarning):
     def __init__(self, name, obj):
@@ -28,6 +30,14 @@ class ComplexParamsIdentifyWarning(UserWarning):
 
     def __str__(self):
         return f"{self.explain}, it may cause mistake when detecting whether there is checkpoint for this call."
+
+
+class InlineEnvironmentWarning(UserWarning):
+    def __init__(self):
+        super().__init__()
+
+    def __str__(self):
+        return "InlineCheckpoint is only functional in '__main__', while you are trying to use it inside a function or method. The 'produce' will not be cached and the computation will always happen."
 
 
 class SkipWithBlock(Exception):
