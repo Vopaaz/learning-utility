@@ -157,10 +157,10 @@ class InlineCheckpoint(object):
 
         sourcelines = source.split("\n")
         if self._id != "default":
-            pattern = r'''(\s*)with .*?\(\s*watch\s*=\s*[\[\(]\s*['"]%s['"][\]\)]\s*,\s+produce\s*=\s*[\[\(]\s*['"]%s['"][\]\)]\s*,\s*_id\s*=\s*['"]%s['"]\).*?:''' % (
+            pattern = r'''(\s*)with .*?\(\s*watch\s*=\s*[\[\(]\s*['"]?%s['"]?[\]\)]\s*,\s+produce\s*=\s*[\[\(]\s*['"]%s['"][\]\)]\s*,\s*_id\s*=\s*['"]%s['"]\).*?:''' % (
                 '''['"]\s*,\s*['"]'''.join(self.watch), '''['"]\s*,\s*['"]'''.join(self.produce), self._id)
         else:
-            pattern = r'''(\s*)with .*?\(\s*watch\s*=\s*[\[\(]\s*['"]%s['"][\]\)]\s*,\s+produce\s*=\s*[\[\(]\s*['"]%s['"][\]\)]\s*(?:,\s*_id\s*=\s*['"]%s['"])?\).*?:''' % (
+            pattern = r'''(\s*)with .*?\(\s*watch\s*=\s*[\[\(]\s*['"]?%s['"]?[\]\)]\s*,\s+produce\s*=\s*[\[\(]\s*['"]%s['"][\]\)]\s*(?:,\s*_id\s*=\s*['"]%s['"])?\).*?:''' % (
                 '''['"]\s*,\s*['"]'''.join(self.watch), '''['"]\s*,\s*['"]'''.join(self.produce), self._id)
 
         matcher = re.compile(pattern)

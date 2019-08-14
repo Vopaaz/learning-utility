@@ -66,6 +66,15 @@ def default_id(a):
         f.b = f.a
     return f.b
 
+def no_watch():
+    f = Foo()
+    with InlineCheckpoint(watch=[], produce=["f.a"]):
+        R()
+        f.a = 1
+
+    return f.a
+
+
 class InlineCheckpointTest(CheckpointBaseTest):
     arr3 = np.array([
         [1,2,4,7],
@@ -78,21 +87,21 @@ class InlineCheckpointTest(CheckpointBaseTest):
     })
 
     def test_add_give_c(self):
-        with self.assertWarns(InlineEnvironmentWarning):
-            self.assertEqual(add_give_c(1,2),1+2)
-            self.runned()
+        # with self.assertWarns(InlineEnvironmentWarning):
+        self.assertEqual(add_give_c(1,2),1+2)
+        self.runned()
 
-        with self.assertWarns(InlineEnvironmentWarning):
-            self.assertEqual(add_give_c(1,3),1+3)
-            self.runned()
+        # with self.assertWarns(InlineEnvironmentWarning):
+        self.assertEqual(add_give_c(1,3),1+3)
+        self.runned()
 
-        with self.assertWarns(InlineEnvironmentWarning):
-            self.assertEqual(add_give_c(1,2),1+2)
-            self.runned()
+        # with self.assertWarns(InlineEnvironmentWarning):
+        self.assertEqual(add_give_c(1,2),1+2)
+        self.runned()
 
-        with self.assertWarns(InlineEnvironmentWarning):
-            self.assertEqual(add_give_c(1,3),1+3)
-            self.runned()
+        # with self.assertWarns(InlineEnvironmentWarning):
+        self.assertEqual(add_give_c(1,3),1+3)
+        self.runned()
 
     def test_add_give_c_in_obj(self):
         self.assertEqual(add_give_c_in_obj(1,2),1+2)
@@ -193,4 +202,11 @@ class InlineCheckpointTest(CheckpointBaseTest):
         self.not_runned()
 
         self.assertEqual(default_id(2),2)
+        self.not_runned()
+
+    def test_no_watch(self):
+        self.assertEqual(no_watch(),1)
+        self.runned()
+
+        self.assertEqual(no_watch(),1)
         self.not_runned()
