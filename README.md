@@ -1,13 +1,11 @@
 # Scikit-Utility
 
-Simplify small-scale machine learning tasks.
-----------------------------------------------
+**Simplify small-scale machine learning tasks.**
 
 Scikit-Utility is a package of utilities for small-scale machine
 learning tasks with scikit-learn.
 
 ![image](https://www.travis-ci.org/Vopaaz/Scikit-Utility.svg?branch=dev)
-
 ![image](https://codecov.io/gh/Vopaaz/Scikit-Utility/branch/dev/graph/badge.svg)
 
 
@@ -31,7 +29,7 @@ computation.
 
 Suppose you have such a .py file.
 
-``` {.sourceCode .python}
+```python
 from skutil.IO import InlineCheckpoint
 
 a, b = 1, 2
@@ -72,17 +70,17 @@ id, pred
 3, 0.56
 ```
 
-In some .py file:
+Run:
 
 ```python
-import numpy as np
-from skutil.IO import AutoSaver
+>>> import numpy as np
+>>> from skutil.IO import AutoSaver
 
-result = np.array([0.2, 0.4, 0.1, 0.5])
-   # Typical output of a scikit-learn predictor
+>>> result = np.array([0.2, 0.4, 0.1, 0.5])
+       # Typical output of a scikit-learn predictor
 
-ac = AutoSaver(save_dir="somedir", example_path="path/to/example.csv")
-ac.save(result, "some_name.csv")
+>>> ac = AutoSaver(save_dir="somedir", example_path="path/to/example.csv")
+>>> ac.save(result, "some_name.csv")
 ```
 
 Then in your somedir/some_name.csv::
