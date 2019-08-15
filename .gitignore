@@ -109,6 +109,6 @@ _build/
 
 explore/
 
-.skutil-checkpoint/
+.Lutil-checkpoint/
 
-*.skutil-checkpoint/
+*.Lutil-checkpoint/

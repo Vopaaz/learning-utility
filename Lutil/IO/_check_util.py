@@ -13,7 +13,7 @@ import nbformat
 from nbconvert import PythonExporter
 
 
-from skutil.IO._exceptions import NotDecoratableError, ComplexParamsIdentifyWarning, NotInlineCheckableError
+from Lutil.IO._exceptions import NotDecoratableError, ComplexParamsIdentifyWarning, NotInlineCheckableError
 
 
 def _get_file_info(obj):

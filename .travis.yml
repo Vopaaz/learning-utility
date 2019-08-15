@@ -11,7 +11,7 @@ install:
   - python -m ipykernel install --user
 
 script:
-  - nosetests --with-coverage --cover-package=skutil
+  - nosetests --with-coverage --cover-package=Lutil
 
 after_success:
   - codecov

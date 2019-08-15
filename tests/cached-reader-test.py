@@ -1,10 +1,10 @@
 import unittest
-from skutil.IO import DataReader
+from Lutil.IO import DataReader
 import logging
 import pandas as pd
 from singleton_slave_1 import get_reader_1
 from singleton_slave_2 import get_reader_2
-from skutil.IO._exceptions import DuplicateSettingWarning
+from Lutil.IO._exceptions import DuplicateSettingWarning
 
 # Some assertWarns are commented due to a bug
 # in assertWarns https://bugs.python.org/issue29620

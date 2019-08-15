@@ -39,7 +39,7 @@ class InlineEnvironmentWarning(UserWarning):
     def __str__(self):
         return '''InlineCheckpoint is only functional in '__main__' to auto-cache a variable, while you are trying to use it inside a function or method.
 The 'produce' will not be cached and the computation will always happen.
-Please refer to https://scikit-utility.readthedocs.io/en/latest/ for alternative solutions.'''
+Please refer to https://learning-utility.readthedocs.io/en/latest/ for alternative solutions.'''
 
 
 class SkipWithBlock(Exception):
