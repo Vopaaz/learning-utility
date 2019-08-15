@@ -1,13 +1,13 @@
 Simplify small-scale machine learning tasks.
 ===================================================
 
-Scikit-Utility is a package of utilities for small-scale machine learning tasks with scikit-learn.
+learning-utility is a package of utilities for small-scale machine learning tasks with scikit-learn.
 
-.. image:: https://www.travis-ci.org/Vopaaz/Scikit-Utility.svg?branch=dev
-    :target: https://www.travis-ci.org/Vopaaz/Scikit-Utility
+.. image:: https://www.travis-ci.org/Vopaaz/learning-utility.svg?branch=dev
+    :target: https://www.travis-ci.org/Vopaaz/learning-utility
 
-.. image:: https://codecov.io/gh/Vopaaz/Scikit-Utility/branch/dev/graph/badge.svg
-  :target: https://codecov.io/gh/Vopaaz/Scikit-Utility
+.. image:: https://codecov.io/gh/Vopaaz/learning-utility/branch/dev/graph/badge.svg
+  :target: https://codecov.io/gh/Vopaaz/learning-utility
 
 **It's now working in progress.**
 
@@ -16,7 +16,7 @@ Installation
 
 .. code-block:: bash
 
-    pip install skutil
+    pip install Lutil
 
 
 Key Features
@@ -33,7 +33,7 @@ Suppose you have such a .py file.
 
 .. code-block:: python
 
-    from skutil.IO import InlineCheckpoint
+    from Lutil.IO import InlineCheckpoint
 
     a, b = 1, 2
     with InlineCheckpoint(watch=["a", "b"], produce=["c"]):
@@ -73,7 +73,7 @@ Run:
 .. code-block:: python
 
     >>> import numpy as np
-    >>> from skutil.IO import AutoSaver
+    >>> from Lutil.IO import AutoSaver
 
     >>> result = np.array([0.2, 0.4, 0.1, 0.5])
             # Typical output of a scikit-learn predictor

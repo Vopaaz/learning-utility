@@ -1,5 +1,5 @@
 import unittest
-from skutil.IO import AutoSaver
+from Lutil.IO import AutoSaver
 import logging
 import pandas as pd
 import numpy as np
@@ -7,7 +7,7 @@ import numpy as np
 import os
 import shutil
 
-from skutil.IO._exceptions import SpeculationFailedError
+from Lutil.IO._exceptions import SpeculationFailedError
 
 
 class AutoSaverTest(unittest.TestCase):
@@ -18,7 +18,7 @@ class AutoSaverTest(unittest.TestCase):
         if os.path.exists(cls.test_assets_dir):
             for the_file in os.listdir(cls.test_assets_dir):
                 file_path = os.path.join(cls.test_assets_dir, the_file)
-                assert "skutil" not in file_path
+                assert "Lutil" not in file_path
                 assert "git" not in file_path
                 assert ".md" not in file_path
             shutil.rmtree(cls.test_assets_dir)

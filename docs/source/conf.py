@@ -17,7 +17,7 @@
 
 # -- Project information -----------------------------------------------------
 
-project = 'Scikit-Utility'
+project = 'learning-utility'
 copyright = '2019, Vopaaz'
 author = 'Vopaaz'
 

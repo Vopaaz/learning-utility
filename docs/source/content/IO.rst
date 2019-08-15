@@ -1,7 +1,7 @@
 IO Module: Read Data, Cache/Save Result
 =============================================
 
-.. py:module:: skutil.IO
+.. py:module:: Lutil.IO
 
 .. py:class:: InlineCheckpoint(*, watch, produce, _id="default")
 

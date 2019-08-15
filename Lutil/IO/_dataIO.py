@@ -9,9 +9,9 @@ import numpy as np
 import pandas as pd
 from pandas.api.types import is_numeric_dtype, is_string_dtype
 
-from skutil.IO._exceptions import SpeculationFailedError
+from Lutil.IO._exceptions import SpeculationFailedError
 import warnings
-from skutil.IO._exceptions import DuplicateSettingWarning
+from Lutil.IO._exceptions import DuplicateSettingWarning
 
 class DataReader(object):
     _instances = {}

@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 setup(
-    name='skutil',
+    name='Lutil',
     version='0.0.1dev',
     description='This is a test of the setup',
     author='Vopaaz',
