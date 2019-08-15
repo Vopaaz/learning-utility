@@ -68,16 +68,18 @@ In example.csv::
     2, 0.45
     3, 0.56
 
-In some .py file::
+Run:
 
-    import numpy as np
-    from skutil.IO import AutoSaver
+.. code-block:: python
 
-    result = np.array([0.2, 0.4, 0.1, 0.5])
-        # Typical output of a scikit-learn predictor
+    >>> import numpy as np
+    >>> from skutil.IO import AutoSaver
 
-    ac = AutoSaver(save_dir="somedir", example_path="path/to/example.csv")
-    ac.save(result, "some_name.csv")
+    >>> result = np.array([0.2, 0.4, 0.1, 0.5])
+            # Typical output of a scikit-learn predictor
+
+    >>> ac = AutoSaver(save_dir="somedir", example_path="path/to/example.csv")
+    >>> ac.save(result, "some_name.csv")
 
 Then in your somedir/some_name.csv::
 
