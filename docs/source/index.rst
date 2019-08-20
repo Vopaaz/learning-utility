@@ -3,10 +3,10 @@ Simplify small-scale machine learning tasks.
 
 learning-utility is a package of utilities for small-scale machine learning tasks with scikit-learn.
 
-.. image:: https://www.travis-ci.org/Vopaaz/learning-utility.svg?branch=dev
+.. image:: https://www.travis-ci.org/Vopaaz/learning-utility.svg?branch=master
     :target: https://www.travis-ci.org/Vopaaz/learning-utility
 
-.. image:: https://codecov.io/gh/Vopaaz/learning-utility/branch/dev/graph/badge.svg
+.. image:: https://codecov.io/gh/Vopaaz/learning-utility/branch/master/graph/badge.svg
   :target: https://codecov.io/gh/Vopaaz/learning-utility
 
 **It's now working in progress.**
