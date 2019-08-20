@@ -56,3 +56,12 @@ html_theme = 'alabaster'
 html_static_path = ['_static']
 
 master_doc = 'index'
+
+html_theme_options = {
+    'github_user': 'vopaaz',
+    'github_repo': 'learning-utility',
+    'fixed_sidebar': True,
+    'description': 'Simplify small-scale machine learning tasks.',
+    'page_width': '1050px',
+    'sidebar_width': '275px'
+}
