@@ -65,3 +65,13 @@ html_theme_options = {
     'page_width': '1050px',
     'sidebar_width': '275px'
 }
+
+html_sidebars = {
+    '**': [
+        'about.html',
+        'navigation.html',
+        'relations.html',
+        'searchbox.html',
+        'donate.html',
+    ]
+}
