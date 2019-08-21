@@ -1,12 +1,12 @@
-checkpoints: Cache Intermediate Results
+checkpoints: Auto-Caching
 =============================================
 
 .. contents::
 
 .. py:module:: Lutil.checkpoints
 
-InlineCheckpoint
-""""""""""""""""""""""
+InlineCheckpoint, context manager
+""""""""""""""""""""""""""""""""""
 
 .. py:class:: InlineCheckpoint(*, watch, produce, [_id="default"])
 
@@ -14,13 +14,16 @@ InlineCheckpoint
     When is executed later with the same condition,
     retrieve the cache and avoid re-computation.
 
-    :param watch: List of variables used to identify a computing context
+    :param watch: List of names of variables used to identify a computing context
     :type watch: list or tuple
-    :param produce: List of variables whose values are generated within the with-statement
+    :param produce: List of names of variables whose values are generated within the with-statement
     :type produce: list or tuple
     :param str _id: Indentifier for very special case
 
-    We have provided the most basic example in
+Basic Example
+^^^^^^^^^^^^^^^^
+
+    We have provided the simplest example in
     `the welcome page <../index.html#cache-intermediate-results>`_,
     here is a more practical one:
 
@@ -53,32 +56,34 @@ InlineCheckpoint
 
         (10000, 20)
 
-    If you the values watched has changed, for example,
+Condition of Re-computation
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+    If the values you watched has changed, for example,
     the data or the parameter for the sklearn transformer,
     it re-compute the code in with-statement to retrieve the correct result.
 
-    For example, if you replace ``pca = PCA(20)`` with
-
-    .. code-block:: python
-
-        pca = PCA(50)
-
-    Run the script again, you will get::
+    For instance, if you replace ``pca = PCA(20)`` with ``pca = PCA(50)`` and
+    run the script again, you will get::
 
         A thousand years later.
         (10000, 50)
 
-    It also monitors whether the code in the with-statement has changed,
-    for example, if you replace ``data_t = pca.fit_transform(data)`` with
+    The code in the with-statement is also monitored to detect whether the condition
+    has changed.
 
-    .. code-block:: python
-
-        data_t = data
-
-    The with-statement is executed::
+    For example, if you replace ``data_t = pca.fit_transform(data)`` with ``data_t = data``
+    The re-computation will be executed::
 
         A thousand years later.
         (10000, 1000)
+
+
+Format of Watch and Produce
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+    Basically, the items in the ``watch``/``produce`` list shoule be valid
+    variable names in Python.
 
     The ``watch`` and ``produce`` can also be attributes of some object,
     using the ``.`` syntax.
@@ -130,13 +135,51 @@ InlineCheckpoint
                 f.b = a
             return f.b
 
-    Nevertheless, `checkpoint as a decorator <#function-decorator-checkpoint>`_ is recommended
+    Nevertheless, `checkpoint as a decorator <#checkpoint>`_ is recommended
     for a function. Besides, if you use this, the return statement should not be included
     in the with-statement.
 
 
 
-Function Decorator: checkpoint
+The _id Parameter
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+    The ``_id`` parameter is only necessary to explicitly set when:
+
+    * Two ``InlineCheckpoint`` in the same file
+    * with exactly the same ``watch``, ``produce``, i.e. same variable name and same value
+    * and the same code in the with-statement
+    * but produce different results
+
+    This may be caused by some changes in the data you used, but are not in the
+    watch list. This is a bad practice though, but the ``_id`` parameter is still
+    kept for some unexpected special cases.
+
+Watching a Complex Object
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+    If the object you are watching has some attributes, which are neither basic data types
+    nor pd.DataFrame/np.ndarray, a warning will be raised.
+    It is not recommended to do so. Instead, explicitly watch those attributes which affects
+    the computation, using the ``.`` syntax.
+
+    .. code-block:: python
+
+        class Bar: pass
+        f = Foo()
+        f.bar = Bar()
+
+        with InlineCheckpoint(watch=["f"], produce=["f.a"]):
+            f.a = 1
+
+    will give you:
+
+    .. code-block:: text
+
+        ComplexParamsIdentifyWarning: A complicated object is an attribute of <__main__.Foo object at 0x000001CE66E897B8>, 
+        it may cause mistake when detecting whether there is checkpoint for this call.
+
+checkpoint, function decorator
 """""""""""""""""""""""""""""""""
 
 .. py:decorator:: checkpoint
