@@ -1,4 +1,4 @@
-dataIO Module: Read Data, Save Result
+dataIO: Read Data, Save Result
 =============================================
 
 .. py:module:: Lutil.dataIO
