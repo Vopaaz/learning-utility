@@ -1,4 +1,4 @@
-IO Module: Read Data, Cache/Save Result
+checkpoints: Cache Intermediate Results
 =============================================
 
 .. contents::
