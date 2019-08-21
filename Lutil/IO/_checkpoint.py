@@ -186,7 +186,7 @@ class InlineCheckpoint(object):
             else:
                 break
 
-        with_statement = ";".join([i.strip() for i in with_statement_lines])
+        with_statement = ";".join([i.strip() for i in with_statement_lines]).replace(" ", "")
 
         identify_str = f"{self._id}-{file_name}-{watch_str}-{with_statement}"
         return identify_str
