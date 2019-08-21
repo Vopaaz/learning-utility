@@ -84,8 +84,6 @@ def _get_identify_str_for_value(value):
     else:
         str_val = str(value)
         if re.compile(r"<.*? object at \w{12,20}>").match(str_val):
-            warnings.warn(ComplexParamsIdentifyWarning(
-                f"A complicated object is used as parameter"))
             return _get_identify_str_for_cls_or_object(value)
         else:
             return str_val + str(type(value))
