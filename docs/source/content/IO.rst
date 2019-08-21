@@ -3,8 +3,7 @@ IO Module: Read Data, Cache/Save Result
 
 .. contents::
 
-
-.. py:module:: Lutil.IO
+.. py:module:: Lutil.checkpoints
 
 InlineCheckpoint
 """"""""""""""""""""""
@@ -29,7 +28,7 @@ InlineCheckpoint
 
     .. code-block:: python
 
-        from Lutil.IO import InlineCheckpoint
+        from Lutil.checkpoints import InlineCheckpoint
 
         import numpy as np
         from sklearn.decomposition import PCA
@@ -146,12 +145,5 @@ Function Decorator: checkpoint
     Cache the return value of a function or method.
     When is called later with the same condition, retrieve the cache and skip the with-statement.
 
-
-
-
-
-.. py:class:: AutoSaver(save_dir="", example_path=None, **default_kwargs)
-
-.. py:class:: DataReader(train_path=None, test_path=None, val_path=None, *, _id="default", read_func=None, **read_kwargs)
 
 

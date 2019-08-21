@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 
 import datetime
-from Lutil.IO import checkpoint
+from Lutil.checkpoints import checkpoint
 
 from checkpoint_test_base import R, CheckpointBaseTest
 

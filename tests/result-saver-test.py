@@ -1,5 +1,5 @@
 import unittest
-from Lutil.IO import AutoSaver
+from Lutil.dataIO import AutoSaver
 import logging
 import pandas as pd
 import numpy as np
@@ -7,7 +7,7 @@ import numpy as np
 import os
 import shutil
 
-from Lutil.IO._exceptions import SpeculationFailedError
+from Lutil._exceptions import SpeculationFailedError
 
 
 class AutoSaverTest(unittest.TestCase):
