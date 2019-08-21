@@ -33,7 +33,7 @@ Suppose you have such a .py file.
 
 .. code-block:: python
 
-    from Lutil.IO import InlineCheckpoint
+    from Lutil.checkpoints import InlineCheckpoint
 
     a, b = 1, 2
     with InlineCheckpoint(watch=["a", "b"], produce=["c"]):
@@ -73,7 +73,7 @@ Run:
 .. code-block:: python
 
     >>> import numpy as np
-    >>> from Lutil.IO import AutoSaver
+    >>> from Lutil.dataIO import AutoSaver
 
     >>> result = np.array([0.2, 0.4, 0.1, 0.5])
             # Typical output of a scikit-learn predictor
@@ -98,9 +98,11 @@ Also, the encoding, seperator, header, index of the example.csv will all be reco
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
-   :glob:
 
-   content/*
+   content/checkpoints.rst
+   content/dataIO.rst
+   
+   content/changelog.rst
 
 
 
