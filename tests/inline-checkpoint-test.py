@@ -1,8 +1,8 @@
-from Lutil.IO import InlineCheckpoint
+from Lutil.checkpoints import InlineCheckpoint
 from checkpoint_test_base import R, CheckpointBaseTest
 import numpy as np
 import pandas as pd
-from Lutil.IO._exceptions import InlineEnvironmentWarning
+from Lutil._exceptions import InlineEnvironmentWarning
 
 def add_give_c(a, b):
     c = "reset"

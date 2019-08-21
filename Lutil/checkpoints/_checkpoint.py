@@ -3,7 +3,7 @@ import os
 import joblib
 import re
 
-from Lutil.IO._check_util import (_get_applied_args,
+from Lutil.checkpoints._check_util import (_get_applied_args,
                                    _get_hash_of_str,
                                    _get_identify_str_for_func,
                                    _get_file_info,
@@ -13,7 +13,7 @@ from Lutil.IO._check_util import (_get_applied_args,
                                    _check_inline_handleable,
                                    )
 
-from Lutil.IO._exceptions import SkipWithBlock, InlineEnvironmentWarning
+from Lutil._exceptions import SkipWithBlock, InlineEnvironmentWarning
 import sys
 import inspect
 import logging
