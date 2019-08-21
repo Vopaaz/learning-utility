@@ -74,6 +74,13 @@ def no_watch():
 
     return f.a
 
+def produce_two():
+    f = Foo()
+    with InlineCheckpoint(watch=[], produce=["f.a", "f.b"]):
+        R()
+        f.a = 1
+        f.b = 2
+    return f.a, f.b
 
 class InlineCheckpointTest(CheckpointBaseTest):
     arr3 = np.array([
@@ -209,4 +216,11 @@ class InlineCheckpointTest(CheckpointBaseTest):
         self.runned()
 
         self.assertEqual(no_watch(),1)
+        self.not_runned()
+
+    def test_produce_two(self):
+        self.assertSequenceEqual(produce_two(), (1,2))
+        self.runned()
+
+        self.assertSequenceEqual(produce_two(), (1,2))
         self.not_runned()
