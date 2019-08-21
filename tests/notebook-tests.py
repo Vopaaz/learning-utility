@@ -29,8 +29,14 @@ def run_notebook(notebook_path):
 
 class NotebookTest(unittest.TestCase):
     def test_notebook(self):
-        nb, errors = run_notebook(r'tests/checkpoint-notebook-test.ipynb')
-        self.assertEqual(errors, [])
+        books = [
+            r'tests/checkpoint-notebook-test.ipynb',
+            r'tests/InlineCheckpoint-notebook-test.ipynb'
+        ]
+
+        for book in books:
+            nb, errors = run_notebook(book)
+            self.assertEqual(errors, [])
 
     def tearDown(self):
         dir_name = ".Lutil-checkpoint"
