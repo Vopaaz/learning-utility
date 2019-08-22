@@ -5,7 +5,7 @@ checkpoints: Auto-Caching
 
 .. py:module:: Lutil.checkpoints
 
-InlineCheckpoint, context manager
+InlineCheckpoint, the context manager
 """"""""""""""""""""""""""""""""""
 
 .. py:class:: InlineCheckpoint(*, watch, produce, [_id="default"])
@@ -179,7 +179,7 @@ Watching a Complex Object
         ComplexParamsIdentifyWarning: A complicated object is an attribute of <__main__.Foo object at 0x000001CE66E897B8>, 
         it may cause mistake when detecting whether there is checkpoint for this call.
 
-checkpoint, function decorator
+checkpoint, the function decorator
 """""""""""""""""""""""""""""""""
 
 .. py:decorator:: checkpoint
