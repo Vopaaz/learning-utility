@@ -43,7 +43,7 @@ def _get_identify_str_for_cls_or_object(obj):
                 identify_dict[attr] = _hash_np_array(value)
             else:
                 str_val = str(value)
-                if re.compile("<.*? object at \w{18}>").match(str_val):
+                if re.compile(r"<.*? object at \w{12,20}>").match(str_val):
                     warnings.warn(ComplexParamsIdentifyWarning(
                         f"A complicated object is an attribute of {str(obj)}"))
                 else:
