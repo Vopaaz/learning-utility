@@ -2,7 +2,7 @@ from Lutil.checkpoints import InlineCheckpoint
 from checkpoint_test_base import R, CheckpointBaseTest
 import numpy as np
 import pandas as pd
-from Lutil._exceptions import InlineEnvironmentWarning
+from Lutil._exceptions import InlineEnvironmentWarning, NotInlineCheckableError
 
 def add_give_c(a, b):
     c = "reset"
@@ -224,3 +224,22 @@ class InlineCheckpointTest(CheckpointBaseTest):
 
         self.assertSequenceEqual(produce_two(), (1,2))
         self.not_runned()
+
+    def test_generator(self):
+        with self.assertRaises(NotInlineCheckableError):
+            def some_generator():
+                yield 0
+
+            f = Foo()
+            with InlineCheckpoint(watch=["some_generator"], produce=["f.a"]):
+                f.a = next(some_generator())
+
+    def test_watch_not_exists(self):
+        with self.assertRaises(ValueError):
+            with InlineCheckpoint(watch=["a"], produce=["b"]):
+                b = 3
+
+        f = Foo()
+        with self.assertRaises(ValueError):
+            with InlineCheckpoint(watch=["f.a"], produce=["b"]):
+                b = 3
