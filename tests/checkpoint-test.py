@@ -3,6 +3,7 @@ import pandas as pd
 
 import datetime
 from Lutil.checkpoints import checkpoint
+from Lutil._exceptions import NotDecoratableError
 
 from checkpoint_test_base import R, CheckpointBaseTest
 
@@ -299,3 +300,19 @@ class CheckpointTest(CheckpointBaseTest):
         stop = datetime.datetime.now()
         self.not_runned()
         self.assertLessEqual((stop-start).seconds, 10)
+
+    def test_not_generator(self):
+        with self.assertRaises(NotDecoratableError):
+            @checkpoint
+            def some_generator():
+                yield 0
+
+            next(some_generator())
+
+    def test_wrong_ignore(self):
+        with self.assertRaises(TypeError):
+            @checkpoint(ignore=True)
+            def foo():
+                return 1
+
+            foo()
