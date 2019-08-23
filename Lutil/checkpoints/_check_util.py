@@ -135,10 +135,13 @@ def _get_identify_str_for_func(func, applied_args, ignore=[]):
         else:
             identify_args[key] = _get_identify_str_for_value(value)
 
+
     identify_args_str = "-".join([f"{k}:{v}" for k,
                                   v in identify_args.items()])
 
-    full_str = f"{qualname}-{identify_args_str}"
+    code = inspect.getsource(func).replace("\n","").replace(" ","")
+
+    full_str = f"{qualname}-{identify_args_str}-{code}"
     logging.debug(f"Identification String: {full_str}")
     return full_str
 
