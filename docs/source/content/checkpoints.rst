@@ -1,5 +1,11 @@
-checkpoints: Auto-Caching
+checkpoints: Caching Intermediate Results
 =============================================
+
+There are usually some intermediate results when doing machine learning tasks.
+For example, the data after preprocessing.
+This module is useful for caching them on the disk, and skip re-calculation when
+is called afterwards.
+
 
 .. contents::
 
@@ -13,6 +19,9 @@ InlineCheckpoint, the Context Manager
     A context manager. Cache the output produced within the with-statement.
     When is executed later with the same condition,
     retrieve the cache and avoid re-computation.
+
+    It is fully compatible with the jupyter notebook, and is often useful when using
+    it for machine learning.
 
     :param watch: List of names of variables used to identify a computing context
     :type watch: list or tuple
@@ -180,6 +189,109 @@ checkpoint, the Decorator
 Basic Example
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Suppose you have such a .py file:
+
+.. code-block:: python
+
+    from Lutil.checkpoints import checkpoint
+
+    @checkpoint
+    def foo(a, b):
+        print("Heavy computation.")
+        return a + b
+
+    print(foo(1, 2))
+    print(foo(1, 2))
+
+Run this script, you will get::
+
+    Heavy computation.
+    3
+    3
+
+In the second call of ``foo``, the computation is skipped, and the return
+value is retrieved from cache.
+
+In machine learning tasks, the parameters are often pd.DataFrame or np.ndarray,
+``checkpoint`` works well on them.
+
+Condition of Re-computation
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+If the parameter of the function have changed, the function will be
+called again to retrieve the correct result.
+
+In the previous example, add a new function call
+
+.. code-block:: python
+
+    print(foo(1, 3))
+
+You will get::
+
+    Heavy computation.
+    4
+
+If the code of the function have changed, re-computation takes place as well.
+
+In the previous example, change the function definition from
+``return a + b`` to ``return a - b``, and call ``print(foo(1, 2))`` again,
+you will get::
+
+    Heavy computation.
+    -1
+
+
+
+Ignore Some Parameters
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+By default, ``checkpoint`` monitors all the parameters of the decorated function.
+However, the ``ignore`` parameter can be used if some of them are not contributing to the return value.
+
+.. code-block:: python
+
+    @checkpoint(ignore=["useless"])
+    def bar(a, useless):
+        print("Runned.")
+        return a + 1
+
+    print(bar(1, True))
+    print(bar(1, False))
+
+Althought the value of ``useless`` have changed, there will be no re-computation.
+You will get::
+
+    Runned.
+    2
+    2
+
+
+Complex Object as a Parameter
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+If some parameters of the decorated function are neither
+basic data types nor pd.DataFrame/np.ndarray,
+a warning will be raised. It is not recommended to do so.
+
+.. code-block:: python
+
+    @checkpoint
+    def func(foo):
+        return foo
+
+    class Foo: pass
+    f = Foo()
+    f.foo = Foo()
+
+    func(foo)
+
+You will get:
+
+.. code-block:: text
+
+    ComplexParamsIdentifyWarning: A complicated object is an attribute of <__main__.Foo object at 0x00000224A1575358>,
+    it may cause mistake when detecting whether there is checkpoint for this call.
 
 
 
@@ -190,7 +302,7 @@ See Also
 to our ``checkpoint`` decorator.
 It is more powerful, while ours is more concise.
 
-However, ``joblib`` is not providing anything similar to out ``InlineCheckpoint``,
+However, ``joblib`` is not providing anything similar to our ``InlineCheckpoint``,
 while this is often necessary in some jupyter notebook based solutions.
 This is also the motivation of this module.
 
@@ -217,7 +329,7 @@ If you change ``print('Running.')`` to ``print('Running again.)'``, you will get
 
     Running again.
 
-Now, if you change it back to ``print('Running')``, ``joblib.Memory`` will not retrieve
+Now, if you change it back to ``print('Running')``, it will not retrieve
 the result in the first run. Instead, the computation happens again::
 
     Running.
