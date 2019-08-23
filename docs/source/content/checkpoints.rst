@@ -5,8 +5,8 @@ checkpoints: Auto-Caching
 
 .. py:module:: Lutil.checkpoints
 
-InlineCheckpoint, the context manager
-""""""""""""""""""""""""""""""""""
+InlineCheckpoint, the Context Manager
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 .. py:class:: InlineCheckpoint(*, watch, produce)
 
@@ -51,16 +51,16 @@ Basic Example
         (10000, 20)
 
     Run this script again, the with-statement will be skipped.
-    But the 'produce' will be retrieved from cache, you will get::
+    But the ``produce`` will be retrieved from cache, you will get::
 
         (10000, 20)
 
 Condition of Re-computation
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-    If the values you watched has changed, for example,
+    If the variables or objects you watched have changed, for example,
     the data or the parameter for the sklearn transformer,
-    it re-compute the code in with-statement to retrieve the correct result.
+    code in the with-statement will be executed to retrieve the correct result.
 
     For instance, if you replace ``pca = PCA(20)`` with ``pca = PCA(50)`` and
     run the script again, you will get::
@@ -77,6 +77,8 @@ Condition of Re-computation
         A thousand years later.
         (10000, 1000)
 
+    Thus, please make sure that everything affecting the computation result is included
+    in the ``watch``.
 
 Format of Watch and Produce
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -162,7 +164,7 @@ Watching a Complex Object
         ComplexParamsIdentifyWarning: A complicated object is an attribute of <__main__.Foo object at 0x000001CE66E897B8>,
         it may cause mistake when detecting whether there is checkpoint for this call.
 
-checkpoint, the decorator
+checkpoint, the Decorator
 """""""""""""""""""""""""""""""""
 
 .. py:decorator:: checkpoint
@@ -171,5 +173,67 @@ checkpoint, the decorator
     Cache the return value of a function or method.
     When is called later with the same condition, retrieve the cache and skip the with-statement.
 
+    :param ignore: List of names of variables ignored when identifying a computing context
+    :type ignore: list or tuple
 
 
+Basic Example
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+
+
+
+See Also
+^^^^^^^^^^^^^^^^^
+
+`joblib.Memory <https://joblib.readthedocs.io/en/latest/memory.html#memory>`_ is similar
+to our ``checkpoint`` decorator.
+It is more powerful, while ours is more concise.
+
+However, ``joblib`` is not providing anything similar to out ``InlineCheckpoint``,
+while this is often necessary in some jupyter notebook based solutions.
+This is also the motivation of this module.
+
+Another important difference is that, if the code of the function changes,
+``joblib.Memory`` only caches the result of the latest function version.
+
+.. code-block:: python
+
+    from joblib import Memory
+    memory = Memory("dir", verbose=0)
+
+    @memory.cache
+    def f(x):
+        print('Running.')
+        return x
+
+    f(1)
+
+Run this, you get::
+
+    Running.
+
+If you change ``print('Running.')`` to ``print('Running again.)'``, you will get::
+
+    Running again.
+
+Now, if you change it back to ``print('Running')``, ``joblib.Memory`` will not retrieve
+the result in the first run. Instead, the computation happens again::
+
+    Running.
+
+However, if you are using our ``checkpoint``.
+
+.. code-block:: python
+
+    from Lutil.checkpoints import checkpoint
+
+    @checkpoint
+    def f(x):
+        print('Running.')
+        return x
+
+    f(1)
+
+Do the similar thing, and in the third run, the computation will be skipped.
+The result in the first run will be retrieved.

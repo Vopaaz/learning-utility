@@ -61,7 +61,7 @@ html_theme_options = {
     'github_user': 'vopaaz',
     'github_repo': 'learning-utility',
     # 'fixed_sidebar': 'True',
-    'description': 'Simplify small-scale machine learning tasks.',
+    'description': 'Simplify small-scale machine learning.',
     'page_width': '1050px',
     'sidebar_width': '275px'
 }
