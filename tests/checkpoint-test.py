@@ -220,19 +220,6 @@ class CheckpointTest(CheckpointBaseTest):
         self.assertTrue((f.no_args() == f.a).all())
         self.not_runned()
 
-    def test_overwrite(self):
-        self.assertEqual(adding_with_default(3, 3), 3+3)
-        self.runned()
-
-        self.assertEqual(adding_with_default(3, 3, __overwrite__=True), 3+3)
-        self.runned()
-
-        self.assertEqual(adding_with_default(3), 3+3)
-        self.not_runned()
-
-        with self.assertRaises(TypeError):
-            adding_with_default(3, __overwrite__=1)
-
     def test_class_or_func_as_param(self):
         self.assertIs(always_return_1(empty), 1)
         self.runned()

@@ -35,13 +35,9 @@ def checkpoint(ignore=[]):
         raise TypeError(f"Unsupported parameter type '{type(ignore)}'")
 
     def wrapper(func):
-        def inner(*args, __overwrite__=False, **kwargs):
+        def inner(*args, **kwargs):
             if not os.path.exists(_save_dir):
                 os.mkdir(_save_dir)
-
-            if not isinstance(__overwrite__, bool):
-                raise TypeError(
-                    "'__overwrite__' parameter must be a boolean type")
 
             _check_handleable(func)
             file_info = _get_file_info(func)
@@ -51,7 +47,7 @@ def checkpoint(ignore=[]):
             hash_val = _get_hash_of_str(file_info + id_str)
 
             cache_path = os.path.join(_save_dir, f"{hash_val}.pkl")
-            if os.path.exists(cache_path) and not __overwrite__:
+            if os.path.exists(cache_path):
                 return joblib.load(cache_path)
             else:
                 res = func(*args, **kwargs)
