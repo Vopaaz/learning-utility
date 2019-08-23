@@ -8,7 +8,7 @@ checkpoints: Auto-Caching
 InlineCheckpoint, the context manager
 """"""""""""""""""""""""""""""""""
 
-.. py:class:: InlineCheckpoint(*, watch, produce, [_id="default"])
+.. py:class:: InlineCheckpoint(*, watch, produce)
 
     A context manager. Cache the output produced within the with-statement.
     When is executed later with the same condition,
@@ -18,7 +18,6 @@ InlineCheckpoint, the context manager
     :type watch: list or tuple
     :param produce: List of names of variables whose values are generated within the with-statement
     :type produce: list or tuple
-    :param str _id: Indentifier for very special case
 
 Basic Example
 ^^^^^^^^^^^^^^^^
@@ -135,25 +134,9 @@ Format of Watch and Produce
                 f.b = a
             return f.b
 
-    Nevertheless, `checkpoint as a decorator <#checkpoint>`_ is recommended
+    Nevertheless, `checkpoint as a decorator <#checkpoint-the-decorator>`_ is recommended
     for a function. Besides, if you use this, the return statement should not be included
     in the with-statement.
-
-
-
-The _id Parameter
-^^^^^^^^^^^^^^^^^^^^^^^^^
-
-    The ``_id`` parameter is only necessary to explicitly set when:
-
-    * Two ``InlineCheckpoint`` in the same file
-    * with exactly the same ``watch``, ``produce``, i.e. same variable name and same value
-    * and the same code in the with-statement
-    * but produce different results
-
-    This may be caused by some changes in the data you used, but are not in the
-    watch list. This is a bad practice though, but the ``_id`` parameter is still
-    kept for some unexpected special cases.
 
 Watching a Complex Object
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -176,10 +159,10 @@ Watching a Complex Object
 
     .. code-block:: text
 
-        ComplexParamsIdentifyWarning: A complicated object is an attribute of <__main__.Foo object at 0x000001CE66E897B8>, 
+        ComplexParamsIdentifyWarning: A complicated object is an attribute of <__main__.Foo object at 0x000001CE66E897B8>,
         it may cause mistake when detecting whether there is checkpoint for this call.
 
-checkpoint, the function decorator
+checkpoint, the decorator
 """""""""""""""""""""""""""""""""
 
 .. py:decorator:: checkpoint
