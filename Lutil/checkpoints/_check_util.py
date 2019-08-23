@@ -157,7 +157,7 @@ def _get_applied_args(func, args, kwargs):
     signature = inspect.signature(func)
     applied_args = OrderedDict({
         k: v.default
-        for k, v in signature.parameters.items() if k != "__overwrite__"
+        for k, v in signature.parameters.items()
     })
 
     # update call args into applied_args
