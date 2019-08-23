@@ -4,14 +4,14 @@ import joblib
 import re
 
 from Lutil.checkpoints._check_util import (_get_applied_args,
-                                   _get_hash_of_str,
-                                   _get_identify_str_for_func,
-                                   _get_file_info,
-                                   _get_identify_str_for_cls_or_object,
-                                   _get_identify_str_for_value,
-                                   _check_handleable,
-                                   _check_inline_handleable,
-                                   )
+                                           _get_hash_of_str,
+                                           _get_identify_str_for_func,
+                                           _get_file_info,
+                                           _get_identify_str_for_cls_or_object,
+                                           _get_identify_str_for_value,
+                                           _check_handleable,
+                                           _check_inline_handleable,
+                                           )
 
 from Lutil._exceptions import SkipWithBlock, InlineEnvironmentWarning
 import sys
@@ -66,17 +66,17 @@ def checkpoint(ignore=[]):
 
 
 class InlineCheckpoint(object):
-    def __init__(self, *, watch, produce, _id="default"):
+    def __init__(self, *, watch, produce):
         assert isinstance(watch, (list, tuple))
         assert isinstance(produce, (list, tuple))
         self.watch = watch
         self.produce = produce
-        self._id = _id
 
         if not os.path.exists(_save_dir):
             os.mkdir(_save_dir)
 
         call_f = inspect.currentframe().f_back
+        self.lineno = call_f.f_lineno
         self.locals = call_f.f_locals
         self.globals = call_f.f_globals
 
@@ -156,21 +156,18 @@ class InlineCheckpoint(object):
                 "Unknown error when detecting jupyter or .py environment.")
 
         sourcelines = source.split("\n")
-        if self._id != "default":
-            pattern = r'''(\s*)with .*?\(\s*watch\s*=\s*[\[\(]\s*['"]?%s['"]?[\]\)]\s*,\s+produce\s*=\s*[\[\(]\s*['"]%s['"][\]\)]\s*,\s*_id\s*=\s*['"]%s['"]\).*?:''' % (
-                '''['"]\s*,\s*['"]'''.join(self.watch), '''['"]\s*,\s*['"]'''.join(self.produce), self._id)
-        else:
-            pattern = r'''(\s*)with .*?\(\s*watch\s*=\s*[\[\(]\s*['"]?%s['"]?[\]\)]\s*,\s+produce\s*=\s*[\[\(]\s*['"]%s['"][\]\)]\s*(?:,\s*_id\s*=\s*['"]%s['"])?\).*?:''' % (
-                '''['"]\s*,\s*['"]'''.join(self.watch), '''['"]\s*,\s*['"]'''.join(self.produce), self._id)
+        init_statement = sourcelines[self.lineno-1]
+
+        pattern = r'''(\s*)with .*?\(\s*watch\s*=\s*[\[\(]\s*['"]?%s['"]?[\]\)]\s*,\s+produce\s*=\s*[\[\(]\s*['"]%s['"][\]\)]\s*\).*?:''' % (
+            '''['"]\s*,\s*['"]'''.join(self.watch), '''['"]\s*,\s*['"]'''.join(self.produce))
 
         matcher = re.compile(pattern)
 
         start_line = None
-        for lineno, line in enumerate(sourcelines):
-            res = matcher.match(line)
-            if res:
-                start_line = lineno
-                indent = res.group(1)
+        res = matcher.match(init_statement)
+        if res:
+            start_line = self.lineno-1
+            indent = res.group(1)
 
         if start_line is None:
             raise Exception(
@@ -186,9 +183,10 @@ class InlineCheckpoint(object):
             else:
                 break
 
-        with_statement = ";".join([i.strip() for i in with_statement_lines]).replace(" ", "")
+        with_statement = ";".join(
+            [i.strip() for i in with_statement_lines]).replace(" ", "")
 
-        identify_str = f"{self._id}-{file_name}-{watch_str}-{with_statement}"
+        identify_str = f"{file_name}-{watch_str}-{with_statement}"
         return identify_str
 
     def __checkpoint_exists(self):

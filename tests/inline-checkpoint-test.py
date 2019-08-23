@@ -6,7 +6,7 @@ from Lutil._exceptions import InlineEnvironmentWarning, NotInlineCheckableError
 
 def add_give_c(a, b):
     c = "reset"
-    with InlineCheckpoint(watch=["a", "b"], produce=["c"], _id="add_give_c"):
+    with InlineCheckpoint(watch=["a", "b"], produce=["c"]):
         R()
         c = a + b
     return c
@@ -18,7 +18,7 @@ def add_give_c_in_obj(a, b):
     f = Foo()
     f.c = "reset"
 
-    with InlineCheckpoint(watch=["a", "b"], produce=["f.c"], _id="add_give_c"):
+    with InlineCheckpoint(watch=["a", "b"], produce=["f.c"]):
         R()
         f.c = a + b
 
@@ -28,21 +28,21 @@ def watch_obj_value(a):
     f = Foo()
     f.a = a
 
-    with InlineCheckpoint(watch=["f.a"], produce=["f.c"], _id="add_give_c"):
+    with InlineCheckpoint(watch=["f.a"], produce=["f.c"]):
         R()
         f.c = a
 
     return f.c
 
 def fail_1():
-    with InlineCheckpoint(watch=["a"], produce=["b"], _id="fail_1"):
+    with InlineCheckpoint(watch=["a"], produce=["b"]):
         R()
         b = a
     return b
 
 def fail_2():
     f = Foo()
-    with InlineCheckpoint(watch=["f.a"], produce=["b"], _id="fail_2"):
+    with InlineCheckpoint(watch=["f.a"], produce=["b"]):
         R()
         b = f.a
     return b
@@ -53,7 +53,7 @@ def multi_level(a):
     f.f.f = Foo()
     f.f.f.a = a
 
-    with InlineCheckpoint(watch=["f.f.f.a"], produce=["f.f.b"], _id="multi_level"):
+    with InlineCheckpoint(watch=["f.f.f.a"], produce=["f.f.b"]):
         R()
         f.f.b = f.f.f.a
     return f.f.b
