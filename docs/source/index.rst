@@ -61,7 +61,9 @@ Save Prediction Result According to the Given Format
 Lots of machine learning competitions require a .csv file in a given format.
 Most of them provide an example file.
 
-In example.csv::
+In example.csv:
+
+.. code-block:: text
 
     id, pred
     1, 0.25
@@ -81,7 +83,9 @@ Run:
     >>> ac = AutoSaver(save_dir="somedir", example_path="path/to/example.csv")
     >>> ac.save(result, "some_name.csv")
 
-Then in your somedir/some_name.csv::
+Then in your somedir/some_name.csv:
+
+.. code-block:: text
 
     id, pred
     1, 0.2
@@ -94,14 +98,13 @@ Also, the encoding, seperator, header, index of the example.csv will all be reco
 
 
 
-
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
 
    content/checkpoints.rst
    content/dataIO.rst
-   
+
    content/changelog.rst
 
 
