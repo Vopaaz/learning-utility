@@ -33,7 +33,7 @@ class DataReader(object):
                 DataReader._instances[_id] = new_instance
                 return new_instance
 
-    def __init__(self, train_path=None, test_path=None, val_path=None, *, _id="default", read_func=None, **read_kwargs):
+    def __init__(self, train_path=None, test_path=None, val_path=None, _id="default", read_func=None, **read_kwargs):
         assert read_func is None or callable(read_func)
         if hasattr(self, "_id"):
             self.__init_existed__(train_path=train_path, test_path=test_path,
