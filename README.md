@@ -1,6 +1,6 @@
 # learning-utility
 
-**Simplify small-scale machine learning.**
+**Assist small-scale machine learning.**
 
 learning-utility is a package of utilities for small-scale machine
 learning tasks with scikit-learn.
