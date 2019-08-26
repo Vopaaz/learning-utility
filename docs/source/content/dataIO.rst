@@ -6,19 +6,19 @@ dataIO: Read Data, Save Result
 .. py:module:: Lutil.dataIO
 
 
-AutoSaver, auto-format and save prediction results
+AutoSaver, Auto-format and Save Prediction Results
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 In some machine learning competitions, like `kaggle <https://www.kaggle.com/>`_,
 a .csv file is required for result submission.
 Its format is usually illustrated in an example file.
-This class inspect the required format from the example, and
+``AutoSaver`` inspects the required format from the example, and
 save your result.
 
 .. py:class:: AutoSaver(save_dir="", example_path=None, **default_kwargs)
 
     :param str save_dir: Directory where your results will be saved
-    :param str example_path: Path to the example .csv file
+    :param str example_path: Optional, path to the example .csv file
     :param default_kwargs: Default keyword arguments arbitrarily used for `DataFrame.to_csv()`
 
 .. py:method:: Autosaver.save(self, X, filename, memo=None, **kwargs)
@@ -41,9 +41,9 @@ For example, if the index in the example starts from zero and there is no header
 
 .. code-block:: text
 
-    0, 0.25
-    1, 0.24
-    2, 0.36
+    0, 0.1
+    1, 0.1
+    2, 0.1
 
 Run:
 
@@ -72,9 +72,9 @@ Some competitions use a hash-like value as the index. For instance, in your exam
 .. code-block:: text
 
     hash, value
-    aaffc2, 0.2
-    spf2oa, 0.3
-    as2nw2, 0.5
+    aaffc2, 0.1
+    spf2oa, 0.1
+    as2nw2, 0.1
 
 Then you should include the index in the ``X`` parameter.
 However, how you achieve this is quite at will.
@@ -156,31 +156,75 @@ For example:
 .. code-block:: python
 
     >>> df = pd.DataFrame({
-        "ix":[1,2,3],
-        "pred":[0.1,0.2,0.3]
-    })
-    >>> ac = AutoSaver(save_dir="somedir", index=True)
+    ...     "ix":[1,2,3],
+    ...     "pred":[0.1,0.2,0.3]
+    ... })
+    >>> ac = AutoSaver(save_dir="somedir", index=False)
     >>> ac.save(df, "result1.csv")
-
-This is identical to:
-
-.. code-block:: python
-
-    >>> df.to_csv("somedir/result1.csv", index=True)
-
-You can also add more arguments when calling ``save``:
-
-.. code-block:: python
-
-    >>> ac.save(df, "result2.csv", header=False)
 
 This is equivalent to:
 
 .. code-block:: python
 
-    >>> df.to_csv("somedir/result2.csv", index=True, header=False)
+    >>> df.to_csv("somedir/result1.csv", index=False)
 
-.. py:class:: DataReader(train_path=None, test_path=None, val_path=None, *, _id="default", read_func=None, **read_kwargs)
+You can also add more arguments when calling ``save``:
 
+.. code-block:: python
+
+    >>> ac.save(df, "result2.csv", header=True)
+
+This is equivalent to:
+
+.. code-block:: python
+
+    >>> df.to_csv("somedir/result2.csv", index=True, header=True)
+
+When you use arbitrary arguments, you cannot use the ``example_path`` feature.
+They contradicts each other.
+
+DataReader, Raw Data Management
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+If you want to read the dataset multiple times or across modules, it can be boring
+to copy-paste your ``pd.read_csv()`` statement. ``DataReader`` is a
+dataset manager which allows you to set the reading parameter only once, and
+retrieve the raw dataset anytime without more effort.
+
+.. py:class:: DataReader(train_path=None, test_path=None, val_path=None, _id="default", read_func=None, **read_kwargs)
+
+    :param str train_path: Optional, path to the train set
+    :param str test_path: Optional, path to the test set
+    :param str val_path: Optional, path to the validation set
+    :param str _id: Optional, identifier for multiple datasets
+    :param callable read_func: Optional, function used for reading data, default ``pd.read_csv``
+    :param read_kwargs: Other keyword arguments for applying to the ``read_func``
+
+.. py:attribute:: DataReader.train
+
+    Read only. Each time you access this attribute, the train dataset will be read
+    using the ``read_func`` and ``read_kwargs``
+
+.. py:attribute:: DataReader.test
+
+    Read only. Each time you access this attribute, the test dataset will be read
+    using the ``read_func`` and ``read_kwargs``
+
+.. py:attribute:: DataReader.val
+
+    Read only. Each time you access this attribute, the validation dataset will be read
+    using the ``read_func`` and ``read_kwargs``
+
+
+Basic Examples
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+By default, ``pandas.read_csv`` will be used to read csv datasets,
+whose path are assigned when initializing the ``DataReader`` object.
+You can also assign the parameters for ``read_csv`` when initializing.
+
+.. code-block:: python
+
+    >>> from Lutil.dataIO import DataReader
 
 

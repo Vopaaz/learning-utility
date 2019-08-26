@@ -1,4 +1,4 @@
-checkpoints: Caching Intermediate Results
+checkpoints: Cache Intermediate Results
 =============================================
 
 There are usually some intermediate results when doing machine learning tasks.
@@ -6,6 +6,12 @@ For example, the data after preprocessing.
 This module is useful for caching them on the disk, and skip re-calculation when
 is called afterwards.
 
+
+.. note::
+
+    The cache files will be stored in your ./.Lutil-checkpoint directory,
+    if you want to clean the cache, just delete it.
+    You might also want to add this directory to your .gitignore.
 
 .. contents::
 
@@ -70,7 +76,7 @@ Condition of Re-computation
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 If the variables or objects you watched have changed, for example,
-the data or the parameter for the sklearn transformer,
+the data or the parameter for the scikit-learn transformer,
 code in the with-statement will be executed to retrieve the correct result.
 
 For instance, if you replace ``pca = PCA(20)`` with ``pca = PCA(50)`` and
@@ -90,6 +96,14 @@ The re-computation will be executed::
 
 Thus, please make sure that everything affecting the computation result is included
 in the ``watch``.
+
+.. important::
+
+    If you are watching the transformation result of a scikit-learn transformer.
+    Make sure to set the transformer's ``random_state`` parameter if it has one.
+    Otherwise it will vary each time, and be considered a different computation context.
+    Thus the with-statement will not be skipped.
+
 
 Format of Watch and Produce
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -185,7 +199,7 @@ retrieve the cached value and return, avoiding re-computation.
 .. py:decorator:: checkpoint
 .. py:decorator:: checkpoint(ignore=[])
 
-    :param ignore: List of names of variables ignored when identifying a computing context
+    :param ignore: Optional, list of names of variables ignored when identifying a computing context
     :type ignore: list or tuple
 
 
@@ -244,6 +258,13 @@ you will get::
     Heavy computation.
     -1
 
+.. important::
+
+    If some parameter of the
+    decorated function is the transformation result of a scikit-learn transformer.
+    Make sure to set the transformer's ``random_state`` parameter if it has one.
+    Otherwise it will vary each time, and be considered a different computation context.
+    Thus the decorated function will not be skipped.
 
 
 Ignore Some Parameters
