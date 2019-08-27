@@ -132,7 +132,7 @@ class CheckpointTest(CheckpointBaseTest):
         self.assertTrue((return_input(self.df2) == self.df2).all().all())
         self.not_runned()
 
-    def test_return_input(self):
+    def test_return_input_arr(self):
 
         self.assertTrue((return_input(self.arr1) == self.arr1).all())
         self.runned()

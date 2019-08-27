@@ -8,16 +8,13 @@ learning tasks with scikit-learn.
 ![image](https://www.travis-ci.org/Vopaaz/learning-utility.svg?branch=master)
 ![image](https://codecov.io/gh/Vopaaz/learning-utility/branch/master/graph/badge.svg)
 
-
-Installation
-------------
+## Installation
 
 ```bash
 pip install Lutil
 ```
 
-Key Features
-------------
+## Key Features
 
 ### Cache Intermediate Results
 
@@ -40,14 +37,14 @@ print(c)
 
 Run the script, you will get:
 
-```
+```text
 Heavy computation.
 3
 ```
 
 Run this script again, the with-statement will be skipped. You will get:
 
-```
+```text
 3
 ```
 
@@ -61,7 +58,7 @@ Most of them provide an example file.
 
 In example.csv:
 
-```
+```text
 id, pred
 1, 0.25
 2, 0.45
@@ -83,7 +80,7 @@ Run:
 
 Then in your somedir/some_name.csv::
 
-```
+```text
 id, pred
 1, 0.2
 2, 0.4

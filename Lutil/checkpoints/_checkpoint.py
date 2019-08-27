@@ -7,7 +7,6 @@ from Lutil.checkpoints._check_util import (_get_applied_args,
                                            _get_hash_of_str,
                                            _get_identify_str_for_func,
                                            _get_file_info,
-                                           _get_identify_str_for_cls_or_object,
                                            _get_identify_str_for_value,
                                            _check_handleable,
                                            _check_inline_handleable,
@@ -17,7 +16,6 @@ from Lutil._exceptions import SkipWithBlock, InlineEnvironmentWarning
 import sys
 import inspect
 import logging
-import glob
 import warnings
 
 
