@@ -159,6 +159,7 @@ For example:
     ...     "ix":[1,2,3],
     ...     "pred":[0.1,0.2,0.3]
     ... })
+
     >>> ac = AutoSaver(save_dir="somedir", index=False)
     >>> ac.save(df, "result1.csv")
 
@@ -174,7 +175,8 @@ You can also add more arguments when calling ``save``:
 
     >>> ac.save(df, "result2.csv", header=True)
 
-This is equivalent to:
+Both the keyword arguments assigned when initializing and when calling ``save`` will be applied,
+which is equivalent to:
 
 .. code-block:: python
 
@@ -183,13 +185,15 @@ This is equivalent to:
 When you use arbitrary arguments, you cannot use the ``example_path`` feature.
 They contradicts each other.
 
+
+
 DataReader, Raw Data Management
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 If you want to read the dataset multiple times or across modules, it can be boring
 to copy-paste your ``pd.read_csv()`` statement. ``DataReader`` is a
 dataset manager which allows you to set the reading parameter only once, and
-retrieve the raw dataset anytime without more effort.
+get the dataset anytime after without more effort.
 
 .. py:class:: DataReader(train_path=None, test_path=None, val_path=None, _id="default", read_func=None, **read_kwargs)
 
@@ -202,18 +206,15 @@ retrieve the raw dataset anytime without more effort.
 
 .. py:attribute:: DataReader.train
 
-    Read only. Each time you access this attribute, the train dataset will be read
-    using the ``read_func`` and ``read_kwargs``
+    Read only. Each time you access this attribute, the train dataset will be read.
 
 .. py:attribute:: DataReader.test
 
-    Read only. Each time you access this attribute, the test dataset will be read
-    using the ``read_func`` and ``read_kwargs``
+    Read only. Each time you access this attribute, the test dataset will be read.
 
 .. py:attribute:: DataReader.val
 
-    Read only. Each time you access this attribute, the validation dataset will be read
-    using the ``read_func`` and ``read_kwargs``
+    Read only. Each time you access this attribute, the validation dataset will be read.
 
 
 Basic Examples
@@ -226,5 +227,27 @@ You can also assign the parameters for ``read_csv`` when initializing.
 .. code-block:: python
 
     >>> from Lutil.dataIO import DataReader
+
+    >>> reader = DataReader("path/to/train.csv", index_col=1)
+    >>> train = reader.train
+
+This is equivalent to::
+
+    >>> train = pd.read_csv("path/to/train.csv", index_col=1)
+
+
+Ever since you have initialized one instance, you can completely forget about the
+object and all parameter configurations.
+Even in other files, if you call
+
+.. code-block:: python
+
+    >>> DataReader().train
+
+It will also be able to retrieve the train set as before.
+
+Moreover, each time you read 
+
+
 
 
