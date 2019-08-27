@@ -18,7 +18,7 @@ after_success:
 
 deploy:
   provider: pypi
-  user: "liyifan945@163.com"
+  user: "Vopaaz"
   password:
     secure: "CvI4t0PVj8/prex831KH/+MC3/pRz8t0Hk8/i0e5iJqOLawyy2GJAtsTy6z7Geow920uW0HLdVx7/E16PxlWNWumfBZez1y+q4mlfuY0Cvi7nacwpmOK47fg2baZvYWYDSMfihF3yJffRqDGauw+RmhZDTK+4BwWSSxavJ/7MQTwgYMmVYeeZMCpXZ2q8Fn2lR09JDOo69iv8NmtDwackW2x7v26RaIjl9XsLE0ghB6ySPlaUJq9fiobumFoDaZ6XLiDponbl7OYTBWi3rDv6vN9itUDJvCvrVWSkzZs8d5abu3ijJ/fQPnDh3MKT5H/b02U6FzO0+poxAq0TCYZzmEu/dNwJLdU3unrlKnDpq9NOc/N+gFFoVFYEU903ZmXkByied3NMWXLfrFiZllk1L8C+z9/yg6CSHkscSr0j4/4YtU1vonH1mDIukKAc7kgbsHBaoCwBCI548K1cIjPMHdacRaSP8AKF/F5mrczCkp2+Cq6Atu1HEHwJ4yCRyhallVmvM32ZOiiXk7bCohx8w7jbxucz/Rcr6ABcFrnyJXVlEFVZ9kCbA7o3w5Pidodrn+GM9AuNo0GC7VrBm+KFtkaKE1DfXTk5P/m1aQLIf1krK0xIDBWx2UldWMhLhfBU+vnTiPU68GwA4yglLl2O2MDnVuWPECZ9bvK4fPMWds="
   on:
