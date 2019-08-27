@@ -1,25 +1,21 @@
-dist: xenial   # required for Python >= 3.7
+dist: xenial
 language: python
 python:
-  - "3.7"
-  - "3.6"
-
+- '3.7'
+- '3.6'
 install:
-  - pip install -r requirements.txt
-  - pip install .
-  - pip install codecov coverage nose nbformat nbconvert jupyter_client ipykernel
-  - python -m ipykernel install --user
-
+- pip install -r requirements.txt
+- pip install .
+- pip install codecov coverage nose nbformat nbconvert jupyter_client ipykernel
+- python -m ipykernel install --user
 script:
-  - nosetests --with-coverage --cover-package=Lutil
-
+- nosetests --with-coverage --cover-package=Lutil
 after_success:
-  - codecov
-
+- codecov
 deploy:
   provider: pypi
-  user: "Vopaaz"
+  user: Vopaaz
   password:
-    secure: "CvI4t0PVj8/prex831KH/+MC3/pRz8t0Hk8/i0e5iJqOLawyy2GJAtsTy6z7Geow920uW0HLdVx7/E16PxlWNWumfBZez1y+q4mlfuY0Cvi7nacwpmOK47fg2baZvYWYDSMfihF3yJffRqDGauw+RmhZDTK+4BwWSSxavJ/7MQTwgYMmVYeeZMCpXZ2q8Fn2lR09JDOo69iv8NmtDwackW2x7v26RaIjl9XsLE0ghB6ySPlaUJq9fiobumFoDaZ6XLiDponbl7OYTBWi3rDv6vN9itUDJvCvrVWSkzZs8d5abu3ijJ/fQPnDh3MKT5H/b02U6FzO0+poxAq0TCYZzmEu/dNwJLdU3unrlKnDpq9NOc/N+gFFoVFYEU903ZmXkByied3NMWXLfrFiZllk1L8C+z9/yg6CSHkscSr0j4/4YtU1vonH1mDIukKAc7kgbsHBaoCwBCI548K1cIjPMHdacRaSP8AKF/F5mrczCkp2+Cq6Atu1HEHwJ4yCRyhallVmvM32ZOiiXk7bCohx8w7jbxucz/Rcr6ABcFrnyJXVlEFVZ9kCbA7o3w5Pidodrn+GM9AuNo0GC7VrBm+KFtkaKE1DfXTk5P/m1aQLIf1krK0xIDBWx2UldWMhLhfBU+vnTiPU68GwA4yglLl2O2MDnVuWPECZ9bvK4fPMWds="
+    secure: Zkqnq9PAfQKapH2Vj9obXvVVewVAPSK9a8HyX9tvjEOjWzp9SqwNSu28jYZIzIF11SDE06wsicyWJrpt97RA3wCWfl0k29ITwkiDuDFxTRU1s2BzmtOHg+n/K1GAr73oU80hI3QHVyH/uLqDk4262IzVzabuCCU/+nQeE02+OOYLW6wU7Ju+4OkikAAqRR6tSxGsLCTgJtriac0IfIKF74vZId1xj2sRmmwhE3AEVy1Bmjm5Fnw8aEmfeW9wNyBEWWAC5OE6k91tlIW1Y9PTwMSqkUqFyvKa2SETUj9lGQ5uvDgyp/4lddXcLFvvrZ1y36llT1AnZ9e5yI9QRISjW8U0I3Yx96XxdwGpwpb3Ez2y4MOpe0ZQAmWuEiTMqergUMiq4Yp4Fb4mzgwkVq4LwDOnJfBmhaZYheUO4p6moG2aTwbV8KUtsdpxsZIeUyrF4Mk9UHf/plvSWDqX3wp59WcLpynUICmoc9uw0RsVS9oNjLyRrfG52FZV3A1NdaETZWRK30ZEgDmvkDVTGB3znv9DHP4jvsr/bzZumt4J3jcrWGkBAvCgMjZIaw9XFnfj/OyTuI7WrXTqPF+Zk7dLNtTs/UMf9KOYE5DTsLaUgnJTE3BISPwaJMnyFafnFMSAOgywKG+ZsOWU0Lmx+T1YI/8LHY/d11L/eUYVop8RmXE=
   on:
     tags: true
