@@ -204,17 +204,17 @@ get the dataset anytime after without more effort.
     :param callable read_func: Optional, function used for reading data, default ``pd.read_csv``
     :param read_kwargs: Other keyword arguments for applying to the ``read_func``
 
-.. py:attribute:: DataReader.train
+.. py:function:: DataReader.train(self)
 
-    Read only. Each time you access this attribute, the train dataset will be read.
+    Returns the train set.
 
-.. py:attribute:: DataReader.test
+.. py:function:: DataReader.test(self)
 
-    Read only. Each time you access this attribute, the test dataset will be read.
+    Returns the test set.
 
-.. py:attribute:: DataReader.val
+.. py:function:: DataReader.val(self)
 
-    Read only. Each time you access this attribute, the validation dataset will be read.
+    Returns the validation set.
 
 
 Basic Examples
@@ -228,26 +228,81 @@ You can also assign the parameters for ``read_csv`` when initializing.
 
     >>> from Lutil.dataIO import DataReader
 
-    >>> reader = DataReader("path/to/train.csv", index_col=1)
-    >>> train = reader.train
+    >>> reader = DataReader("path/to/train.csv",
+    ...                     "path/to/test.csv",
+    ...                     "path/to/val.csv", index_col=1)
+
+    >>> train = reader.train()
 
 This is equivalent to::
 
     >>> train = pd.read_csv("path/to/train.csv", index_col=1)
 
-
-Ever since you have initialized one instance, you can completely forget about the
-object and all parameter configurations.
-Even in other files, if you call
+Likewise, you can also call
 
 .. code-block:: python
 
-    >>> DataReader().train
+    >>> test = reader.test()
+    >>> val = reader.val()
 
-It will also be able to retrieve the train set as before.
+which are equivalent to::
 
-Moreover, each time you read 
+    >>> test = pd.read_csv("path/to/test.csv", index_col=1)
+    >>> val = pd.read_csv("path/to/val.csv", index_col=1)
+
+Ever since you have initialized one instance, you can completely forget about the
+object and all parameter configurations.
+In the same runtime, even in other files,
+this will be able to retrieve the train set as before.
+
+.. code-block:: python
+
+    >>> DataReader().train()
+
+It is the same for the test set and the validation set.
 
 
+Accessing Multiple Datasets
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Most small-scale machine learning tasks only have one dataset,
+which is our basic usage.
+However, if you want to access multiple datasets, you can assign the ``_id`` parameter.
+This will work accross files as well.
 
 
+.. code-block:: python
+
+    >>> DataReader("path/to/train_1.csv", _id="1", index_col=1)
+    >>> DataReader("path/to/train_2.csv", _id="2", nrows=500)
+
+    >>> train_1 = DataReader(_id="1").train()
+    >>> # Equivalent to
+    >>> train_1 = pd.read_csv("path/to/train_1.csv", index_col=1)
+
+    >>> train_2 = DataReader(_id="2").train()
+    >>> # Equivalent to
+    >>> train_2 = pd.read_csv("path/to/train_2.csv", nrows=500)
+
+
+Using other Reading Function
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+If the data source is not a csv file, and you want to read them with other functions,
+you can pass a callable to the ``read_func`` parameter.
+
+.. code-block:: python
+
+    >>> import pandas as pd
+    >>> reader = DataReader("path/to/train.json", read_func=pd.read_json)
+    >>> train = reader.train()
+
+This is equivalent to::
+
+    >>> train = pd.read_json("path/to/train.json")
+
+Applying other keyword parameter is the same as before, pass them when initializing
+the ``DataReader`` object and it will be passed when actually calling the ``read_func``.
+
+As you see, this will only work if the dataset is stored in one file,
+and the ``read_func`` take the path as the first parameter.
