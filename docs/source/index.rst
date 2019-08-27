@@ -9,7 +9,6 @@ learning-utility is a package of utilities for small-scale machine learning task
 .. image:: https://codecov.io/gh/Vopaaz/learning-utility/branch/master/graph/badge.svg
   :target: https://codecov.io/gh/Vopaaz/learning-utility
 
-**It's now working in progress.**
 
 Installation
 """"""""""""""""

@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='Lutil',
-    version='0.0.1dev',
+    version='0.1.0',
     description='This is a test of the setup',
     author='Vopaaz',
     author_email='liyifan945@163.com',
