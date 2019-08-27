@@ -150,19 +150,19 @@ class DataReaderTest(unittest.TestCase):
         reader1 = DataReader(self.path1, _id=_id+"1")
         self.assertTrue(
             (
-                reader1.train == pd.read_csv(self.path1)
+                reader1.train() == pd.read_csv(self.path1)
             ).all().all()
         )
 
         self.assertTrue(
             (
-                reader1.train.index == pd.read_csv(self.path1).index
+                reader1.train().index == pd.read_csv(self.path1).index
             ).all()
         )
 
         self.assertTrue(
             (
-                reader1.train.columns == pd.read_csv(self.path1).columns
+                reader1.train().columns == pd.read_csv(self.path1).columns
             ).all()
         )
 
@@ -170,20 +170,20 @@ class DataReaderTest(unittest.TestCase):
             val_path=self.path2, _id=_id+"2", index_col="car")
         self.assertTrue(
             (
-                reader2.val == pd.read_csv(self.path2, index_col="car")
+                reader2.val() == pd.read_csv(self.path2, index_col="car")
             ).all().all()
         )
 
         self.assertTrue(
             (
-                reader2.val.index == pd.read_csv(
+                reader2.val().index == pd.read_csv(
                     self.path2, index_col="car").index
             ).all()
         )
 
         self.assertTrue(
             (
-                reader2.val.columns == pd.read_csv(
+                reader2.val().columns == pd.read_csv(
                     self.path2, index_col="car").columns
             ).all()
         )
@@ -193,19 +193,19 @@ class DataReaderTest(unittest.TestCase):
 
         self.assertTrue(
             (
-                reader_all.train == pd.read_csv(self.path1)
+                reader_all.train() == pd.read_csv(self.path1)
             ).all().all()
         )
 
         self.assertTrue(
             (
-                reader_all.test == pd.read_csv(self.path2)
+                reader_all.test() == pd.read_csv(self.path2)
             ).all().all()
         )
 
         self.assertTrue(
             (
-                reader_all.val == pd.read_csv(self.path3)
+                reader_all.val() == pd.read_csv(self.path3)
             ).all().all()
         )
 
@@ -216,29 +216,15 @@ class DataReaderTest(unittest.TestCase):
         reader2 = DataReader(self.path1, _id=_id)
         reader3 = DataReader(_id=_id)
 
-        self.assertTrue(reader1.train is not reader2.train)
-        self.assertTrue(reader2.train is not reader3.train)
+        self.assertTrue(reader1.train() is not reader2.train())
+        self.assertTrue(reader2.train() is not reader3.train())
 
     def test_delay_set_path_and_read(self):
         _id="test_delay_set_path_and_read"
         reader = DataReader(_id=_id)
 
         with self.assertRaises(AttributeError):
-            _ = reader.train
+            _ = reader.train()
 
         reader.train_path = self.path1
-        _ = reader.train
-
-    def test_cannot_set_datasets(self):
-        _id = "test_cannot_set_datasets"
-
-        reader = DataReader(_id=_id)
-
-        with self.assertRaises(ValueError):
-            reader.train = 1
-
-        with self.assertRaises(ValueError):
-            reader.test = 1
-
-        with self.assertRaises(ValueError):
-            reader.val = 1
+        _ = reader.train()

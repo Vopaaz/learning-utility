@@ -15,6 +15,7 @@ from Lutil._exceptions import DuplicateSettingWarning
 
 __all__ = ["DataReader", "AutoSaver"]
 
+
 class DataReader(object):
     _instances = {}
     _instances_lock = threading.Lock()
@@ -155,32 +156,14 @@ class DataReader(object):
             warnings.warn(DuplicateSettingWarning("val", self))
             self._val_path = value
 
-    @property
     def train(self):
         return self.__read_func(self.train_path, **self.__read_kwargs)
 
-    @train.setter
-    def train(self, value):
-        raise ValueError(
-            f"Attibute 'train' of {self.__class__} object is read only.")
-
-    @property
     def test(self):
         return self.__read_func(self.test_path, **self.__read_kwargs)
 
-    @test.setter
-    def test(self, value):
-        raise ValueError(
-            f"Attibute 'test' of {self.__class__} object is read only.")
-
-    @property
     def val(self):
         return self.__read_func(self.val_path, **self.__read_kwargs)
-
-    @val.setter
-    def val(self, value):
-        raise ValueError(
-            f"Attibute 'val' of {self.__class__} object is read only.")
 
 
 class AutoSaver(object):
