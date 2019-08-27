@@ -54,6 +54,7 @@ Run this script again, the with-statement will be skipped. You will get::
 Once a value among ``watch`` changes or the code inside the with-statement changes,
 re-calculation takes place to ensure the correct output.
 
+Please check out the details for `InlineCheckpoint <./content/checkpoints.html#inlinecheckpoint-the-context-manager>`_.
 
 Save Prediction Result According to the Given Format
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -96,6 +97,7 @@ Then in your somedir/some_name.csv:
 It also works if the ``result`` is a pandas DataFrame, Series, 2-dim numpy array, etc.
 Also, the encoding, seperator, header, index of the example.csv will all be recognized.
 
+Please check out the details for `AutoSaver <./content/dataIO.html#autosaver-auto-format-and-save-prediction-results>`_.
 
 
 .. toctree::
