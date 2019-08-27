@@ -12,7 +12,7 @@ learning tasks with scikit-learn.
 Installation
 ------------
 
-``` {.sourceCode .bash}
+```bash
 pip install Lutil
 ```
 
@@ -28,7 +28,7 @@ computation.
 Suppose you have such a .py file.
 
 ```python
-from Lutil.IO import InlineCheckpoint
+from Lutil.checkpoints import InlineCheckpoint
 
 a, b = 1, 2
 with InlineCheckpoint(watch=["a", "b"], produce=["c"]):
@@ -72,7 +72,7 @@ Run:
 
 ```python
 >>> import numpy as np
->>> from Lutil.IO import AutoSaver
+>>> from Lutil.dataIO import AutoSaver
 
 >>> result = np.array([0.2, 0.4, 0.1, 0.5])
        # Typical output of a scikit-learn predictor
@@ -93,5 +93,3 @@ id, pred
 
 It also works if the `result` is a pandas DataFrame, Series, 2-dim numpy array, etc.
 Also, the encoding, seperator, header, index of the example.csv will all be recognized.
-
-
