@@ -9,8 +9,6 @@ learning tasks with scikit-learn.
 ![image](https://codecov.io/gh/Vopaaz/learning-utility/branch/master/graph/badge.svg)
 
 
-**It's now working in progress.**
-
 Installation
 ------------
 
