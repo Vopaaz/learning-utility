@@ -253,7 +253,7 @@ class AutoSaver(object):
                 dialect = sniffer.sniff(content)
                 has_header = sniffer.has_header(content) or has_header
 
-            except:
+            except Exception:
                 fixed_content = "\n".join(
                     line+"," for line in content.split("\n"))
                 dialect = sniffer.sniff(fixed_content)
