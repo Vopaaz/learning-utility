@@ -78,7 +78,7 @@ Run:
 >>> ac.save(result, "some_name.csv")
 ```
 
-Then in your somedir/some_name.csv::
+Then in your somedir/some_name.csv:
 
 ```text
 id, pred
