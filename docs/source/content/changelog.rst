@@ -1,8 +1,15 @@
 Changelog
 ==============
 
+v0.1.1
+^^^^^^^^^^^^^^^^^^
+* Fix changelog in the documentation (v0.0.1 -> v0.1.0)
+* Fix fields in the setup.py
+* More badges in the readme and documentation
+* No code change
 
-v0.0.1
+
+v0.1.0
 ^^^^^^^^^^^^
 
 * Initialize the ``checkpoints`` module

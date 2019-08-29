@@ -9,6 +9,9 @@ learning-utility is a package of utilities for small-scale machine learning task
 .. image:: https://codecov.io/gh/Vopaaz/learning-utility/branch/master/graph/badge.svg
   :target: https://codecov.io/gh/Vopaaz/learning-utility
 
+.. image:: https://img.shields.io/pypi/pyversions/Lutil   :alt: PyPI - Python Version
+
+.. image:: https://img.shields.io/pypi/v/Lutil   :alt: PyPI
 
 Installation
 """"""""""""""""
