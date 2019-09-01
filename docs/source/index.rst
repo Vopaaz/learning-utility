@@ -16,11 +16,11 @@ learning-utility is a package of utilities for small-scale machine learning task
     :target: https://pepy.tech/project/lutil
     :alt: Downloads
 
-Installation
-""""""""""""""""
-
 .. image:: https://img.shields.io/pypi/v/Lutil
     :alt: PyPI
+
+Installation
+""""""""""""""""
 
 .. code-block:: bash
 
