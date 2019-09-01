@@ -9,10 +9,9 @@ learning tasks with scikit-learn.
 ![image](https://codecov.io/gh/Vopaaz/learning-utility/branch/master/graph/badge.svg)
 ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/Lutil)
 [![Downloads](https://pepy.tech/badge/lutil)](https://pepy.tech/project/lutil)
+![PyPI](https://img.shields.io/pypi/v/Lutil)
 
 ## Installation
-
-![PyPI](https://img.shields.io/pypi/v/Lutil)
 
 ```bash
 pip install Lutil
