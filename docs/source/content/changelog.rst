@@ -1,6 +1,9 @@
 Changelog
 ==============
 
+v0.1.2
+* Fix dependencies in requirements.txt and setup.py
+
 v0.1.1
 ^^^^^^^^^^^^^^^^^^
 * Fix changelog in the documentation (v0.0.1 -> v0.1.0)

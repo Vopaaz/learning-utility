@@ -13,7 +13,7 @@ setup(
     long_description = long_description,
     long_description_content_type='text/markdown',
     packages=find_packages(),
-    install_requires=["pandas", "scikit-learn"],
+    install_requires=["pandas", "scikit-learn", "numpy", "joblib"],
     classifiers=[
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
