@@ -3,6 +3,7 @@ Changelog
 
 v0.1.2
 * Fix dependencies in requirements.txt and setup.py
+* Use better way to hash a pandas object
 
 v0.1.1
 ^^^^^^^^^^^^^^^^^^
