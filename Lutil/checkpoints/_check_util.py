@@ -49,17 +49,7 @@ def _get_identify_str_for_cls_or_object(obj):
 
 
 def _hash_pd_object(obj):
-    value = obj.to_numpy()
-    value_hash = _hash_np_array(value)
-    index = obj.index.values
-    index_hash = _hash_np_array(index)
-
-    if isinstance(obj, pd.DataFrame):
-        columns = obj.columns.values
-        columns_hash = _hash_np_array(columns)
-        return f"{value_hash}{index_hash}{columns_hash}"
-    else:
-        return f"{value_hash}{index_hash}"
+    return hashlib.md5(pd.util.hash_pandas_object(obj, index=True).values).hexdigest()
 
 
 def _hash_np_array(arr):
