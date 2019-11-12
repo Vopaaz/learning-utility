@@ -5,7 +5,7 @@ with open(r'README.md',"r",encoding="utf-8") as f:
 
 setup(
     name='Lutil',
-    version='0.1.3',
+    version='0.1.4',
     author='Vopaaz',
     author_email='liyifan945@163.com',
     url='https://github.com/Vopaaz/learning-utility',
@@ -13,7 +13,7 @@ setup(
     long_description = long_description,
     long_description_content_type='text/markdown',
     packages=find_packages(),
-    install_requires=["pandas", "scikit-learn", "numpy", "joblib"],
+    install_requires=["pandas", "chardet", "numpy", "joblib"],
     classifiers=[
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",

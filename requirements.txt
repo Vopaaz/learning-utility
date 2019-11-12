@@ -1,4 +1,4 @@
 pandas
-scikit-learn
-numpy
 joblib
+chardet
+numpy

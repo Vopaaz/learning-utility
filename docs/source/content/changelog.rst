@@ -1,6 +1,10 @@
 Changelog
 ==============
 
+v0.1.4
+^^^^^^^^^^^^^^^^
+* Fix requirements.txt for Windows environment
+
 v0.1.3
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 * Add support for two ``AutoSaver`` cases
