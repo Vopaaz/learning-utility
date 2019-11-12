@@ -315,3 +315,13 @@ strix4,0.5
 '''
 
         self.run_all_X_s(saver, target)
+
+    def test_saving_one_header_no_value(self):
+        saver = AutoSaver(save_dir=self.test_assets_dir, example_path=r"tests/assets/saver-example-one-header-no-value.csv")
+        target= ''',val
+0,1.0
+1,0.0
+2,1.5
+3,0.5
+'''
+        self.run_all_X_s(saver, target)

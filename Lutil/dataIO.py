@@ -3,6 +3,7 @@ import logging
 import operator
 import os
 import threading
+import re
 
 import chardet
 import numpy as np
@@ -297,7 +298,9 @@ class AutoSaver(object):
                 example_spec_res[1], example_spec_res[1]+X.shape[0])
 
         if has_header:
-            return X.to_csv(fullpath, header=example_df.columns, index=False, **dialect_kwargs)
+            header = [re.compile(r"Unnamed: \d+").sub("", i)
+                      for i in example_df.columns.values]
+            return X.to_csv(fullpath, header=header, index=False, **dialect_kwargs)
         else:
             return X.to_csv(fullpath, header=False, index=False, **dialect_kwargs)
 
