@@ -1,6 +1,10 @@
 Changelog
 ==============
 
+v0.1.5
+^^^^^^^^^^^^^^^^^^
+* Bug fixes
+
 v0.1.4
 ^^^^^^^^^^^^^^^^
 * Fix requirements.txt for Windows environment
