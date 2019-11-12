@@ -226,6 +226,9 @@ class AutoSaver(object):
                     X.iloc[:, 0] = np.arange(1, X.shape[0]+1)
                 else:
                     raise e
+        elif X.shape[0] == example_df.shape[0]:
+            X.insert(0, example_df.columns.values[0], 0)
+            X.iloc[:, 0] = example_df.iloc[:, 0]
         else:
             raise e
 

@@ -33,11 +33,11 @@ class AutoSaverGeneralTest(AutoSaverTest):
     def test_save_by_csv_param_error(self):
         with self.assertRaises(ValueError):
             AutoSaver(self.test_assets_dir,
-                        example_path=r"tests/assets/data1.csv", encoding="utf-8")
+                      example_path=r"tests/assets/data1.csv", encoding="utf-8")
 
         with self.assertRaises(ValueError):
             saver = AutoSaver(self.test_assets_dir,
-                                example_path=r"tests/assets/data1.csv")
+                              example_path=r"tests/assets/data1.csv")
             saver.save("Nothing", "some_name.csv", encoding="utf-8")
 
     def test_save_by_csv_using_kwargs(self):
@@ -69,11 +69,11 @@ class AutoSaverGeneralTest(AutoSaverTest):
         self.assertTrue(content, content_2)
 
         saver = AutoSaver(index=True, sep=",")
-        saver.save(df, os.path.join(self.test_assets_dir, name_2), sep=";", index=False)
+        saver.save(df, os.path.join(self.test_assets_dir, name_2),
+                   sep=";", index=False)
         with open(os.path.join(self.test_assets_dir, name_2), "r", encoding="utf-8") as f:
             content = f.read()
         self.assertTrue(content, content_2)
-
 
     def test_memo(self):
         saver = AutoSaver(self.test_assets_dir)
@@ -171,7 +171,7 @@ class AutoSaverSpeculatingTest(AutoSaverTest):
 
     def test_basic(self):
         saver = AutoSaver(save_dir=self.test_assets_dir,
-                            example_path=r"tests/assets/saver-example-basic.csv")
+                          example_path=r"tests/assets/saver-example-basic.csv")
         target = '''index,value
 0,1.0
 1,0.0
@@ -184,7 +184,7 @@ class AutoSaverSpeculatingTest(AutoSaverTest):
         # REMINDER: do not use self.get_csv_content when testing GBK.
         # It defaultly uses utf-8.
         saver = AutoSaver(save_dir=self.test_assets_dir,
-                            example_path=r"tests/assets/saver-example-GBK.csv")
+                          example_path=r"tests/assets/saver-example-GBK.csv")
         target = '''index,value
 0,1.0
 1,0.0
@@ -208,7 +208,7 @@ class AutoSaverSpeculatingTest(AutoSaverTest):
 
     def test_ix_starts_1(self):
         saver = AutoSaver(save_dir=self.test_assets_dir,
-                            example_path=r"tests/assets/saver-example-ix-starts-1.csv")
+                          example_path=r"tests/assets/saver-example-ix-starts-1.csv")
         target = '''index,value
 1,1.0
 2,0.0
@@ -219,7 +219,7 @@ class AutoSaverSpeculatingTest(AutoSaverTest):
 
     def test_other_sep(self):
         saver = AutoSaver(save_dir=self.test_assets_dir,
-                            example_path=r"tests/assets/saver-example-other-sep.csv")
+                          example_path=r"tests/assets/saver-example-other-sep.csv")
         target = '''index;value
 0;1.0
 1;0.0
@@ -231,7 +231,7 @@ class AutoSaverSpeculatingTest(AutoSaverTest):
 
     def test_str_as_index(self):
         saver = AutoSaver(save_dir=self.test_assets_dir,
-                            example_path=r"tests/assets/saver-example-str-as-index.csv")
+                          example_path=r"tests/assets/saver-example-str-as-index.csv")
 
         str_ix = ["strix1", "strix2", "strix3", "strix4"]
 
@@ -270,11 +270,11 @@ strix4,0.5
 
     def test_saving_two_value(self):
         saver = AutoSaver(save_dir=self.test_assets_dir,
-                            example_path=r"tests/assets/saver-example-two-value.csv")
+                          example_path=r"tests/assets/saver-example-two-value.csv")
         arr = np.array([
-            [1,1.5],
-            [0.5,0.7],
-            [0.2,0.3]
+            [1, 1.5],
+            [0.5, 0.7],
+            [0.2, 0.3]
         ])
 
         df = pd.DataFrame(arr)
@@ -296,7 +296,7 @@ strix4,0.5
 
     def test_saving_without_head(self):
         saver = AutoSaver(save_dir=self.test_assets_dir,
-                            example_path=r"tests/assets/saver-example-without-head.csv")
+                          example_path=r"tests/assets/saver-example-without-head.csv")
         target = '''0,1.0
 1,0.0
 2,1.5
@@ -307,7 +307,7 @@ strix4,0.5
 
     def test_saving_without_index(self):
         saver = AutoSaver(save_dir=self.test_assets_dir,
-                            example_path=r"tests/assets/saver-example-without-index.csv")
+                          example_path=r"tests/assets/saver-example-without-index.csv")
         target = '''1.0
 0.0
 1.5
@@ -317,11 +317,35 @@ strix4,0.5
         self.run_all_X_s(saver, target)
 
     def test_saving_one_header_no_value(self):
-        saver = AutoSaver(save_dir=self.test_assets_dir, example_path=r"tests/assets/saver-example-one-header-no-value.csv")
-        target= ''',val
+        saver = AutoSaver(save_dir=self.test_assets_dir,
+                          example_path=r"tests/assets/saver-example-one-header-no-value.csv")
+        target = ''',val
 0,1.0
 1,0.0
 2,1.5
 3,0.5
 '''
         self.run_all_X_s(saver, target)
+
+    def test_saving_strange_index(self):
+        saver = AutoSaver(save_dir=self.test_assets_dir,
+                          example_path=r"tests/assets/saver-example-strange-index.csv")
+        target = '''strange,val
+4,1.0
+8,0.0
+19,1.5
+45,0.5
+150,0.2
+'''
+        arr = np.array([1.0, 0.0, 1.5, 0.5, 0.2])
+        saver.save(arr, self.filename)
+        self.assertEqual(self.get_csv_content(), target)
+
+        saver.save(arr.reshape((5,1)), self.filename)
+        self.assertEqual(self.get_csv_content(), target)
+
+        saver.save(pd.Series(arr), self.filename)
+        self.assertEqual(self.get_csv_content(), target)
+
+        saver.save(pd.DataFrame(arr, columns=[""]), self.filename)
+        self.assertEqual(self.get_csv_content(), target)
