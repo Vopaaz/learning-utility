@@ -210,8 +210,8 @@ class AutoSaver(object):
             "The number of columns of 'X' is smaller than that in the example file.")
         col_ix = example_df.shape[1] - X.shape[1] - 1
         example_spec = self.__speculate_index(example_df.iloc[:, col_ix])
+        X = X.reset_index(level=0)
         if example_spec[0]:
-            X = X.reset_index(level=0)
             try:
                 X.iloc[:, 0] = X.iloc[:, 0].astype(int)
             except:
@@ -227,7 +227,6 @@ class AutoSaver(object):
                 else:
                     raise e
         elif X.shape[0] == example_df.shape[0]:
-            X.insert(0, example_df.columns.values[0], 0)
             X.iloc[:, 0] = example_df.iloc[:, 0]
         else:
             raise e
