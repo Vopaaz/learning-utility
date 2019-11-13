@@ -193,7 +193,7 @@ class AutoSaver(object):
                     f"'X' must be a pd.DataFrame or pd.Series, rather than {X.__class__} if you do not provide an example csv file, or are using self-defined keyword parameters.")
             return X.to_csv(os.path.join(self.save_dir, filename), **self.__used_kwargs)
 
-    def __speculate_index(self, s):
+    def __speculate_ordered_index(self, s):
         s = s.copy()
         if is_string_dtype(s):
             return (True, s.iloc[0])
@@ -203,20 +203,21 @@ class AutoSaver(object):
         for i in range(0, len(s)-1, step):
             if s.iloc[i+step] - s.iloc[i] != step:
                 return (False,)
-        return (True, s.iloc[0])
+        return True, s.iloc[0]
 
-    def __try_add_column(self, X, example_df):
+    def __try_add_column(self, X):
         e = SpeculationFailedError(
             "The number of columns of 'X' is smaller than that in the example file.")
-        col_ix = example_df.shape[1] - X.shape[1] - 1
-        example_spec = self.__speculate_index(example_df.iloc[:, col_ix])
+        col_ix = self.__example_df.shape[1] - X.shape[1] - 1
+        example_spec = self.__speculate_ordered_index(
+            self.__example_df.iloc[:, col_ix])
         X = X.reset_index(level=0)
         if example_spec[0]:
             try:
                 X.iloc[:, 0] = X.iloc[:, 0].astype(int)
             except:
                 pass
-            X_spec = self.__speculate_index(X.iloc[:, 0])
+            X_spec = self.__speculate_ordered_index(X.iloc[:, 0])
             if X_spec[0] and X_spec[1] == example_spec[1]:
                 pass  # Index addition OK
             else:
@@ -226,20 +227,14 @@ class AutoSaver(object):
                     X.iloc[:, 0] = np.arange(1, X.shape[0]+1)
                 else:
                     raise e
-        elif X.shape[0] == example_df.shape[0]:
-            X.iloc[:, 0] = example_df.iloc[:, 0]
+        elif X.shape[0] == self.__example_df.shape[0]:
+            X.iloc[:, 0] = self.__example_df.iloc[:, 0]
         else:
             raise e
 
         return X
 
-    def __save_by_to_csv_speculating(self, X, filename):
-        if not isinstance(X, (pd.DataFrame, pd.Series, np.ndarray)):
-            raise TypeError(
-                f"'X' must be either a pd.DataFrame, pd.Series or np.ndarray, rather than {X.__class__} if you provide an example csv file.")
-
-        fullpath = os.path.join(self.save_dir, filename)
-
+    def __get_example_df(self):
         with open(self.example_path, "rb") as f:
             buffer = f.read()
             enc = chardet.detect(buffer)["encoding"]
@@ -274,37 +269,49 @@ class AutoSaver(object):
             f.seek(0, 0)
             example_df = pd.read_csv(
                 f, dialect=dialect, index_col=False, header=0 if has_header else None)
+        self.__example_df = example_df
+        self.__has_header = has_header
+        self.__dialect_kwargs = dialect_kwargs
+
+    def __save_by_to_csv_speculating(self, X, filename):
+        if not isinstance(X, (pd.DataFrame, pd.Series, np.ndarray)):
+            raise TypeError(
+                f"'X' must be either a pd.DataFrame, pd.Series or np.ndarray, rather than {X.__class__} if you provide an example csv file.")
 
         X = pd.DataFrame(X)
+        self.__get_example_df()
 
-        while X.shape[1] > example_df.shape[1]:
+        while X.shape[1] > self.__example_df.shape[1]:
             # Drop columns of X
-            if self.__speculate_index(X.iloc[:, 0])[0]:
+            if self.__speculate_ordered_index(X.iloc[:, 0])[0]:
                 X = X.drop(columns=[X.columns.values[0]])
             else:
                 raise SpeculationFailedError(
                     "The number of columns of 'X' is larger than that in the example file.")
 
-        while X.shape[1] < example_df.shape[1]:
-            X = self.__try_add_column(X, example_df)
+        while X.shape[1] < self.__example_df.shape[1]:
+            X = self.__try_add_column(X)
 
         for i in range(X.shape[1]):
-            if self.__speculate_index(X.iloc[:, i])[0] and is_numeric_dtype(X.iloc[:, i]):
+            if self.__speculate_ordered_index(X.iloc[:, i])[0] and is_numeric_dtype(X.iloc[:, i]):
                 X.iloc[:, i] = X.iloc[:, i].astype(int)
             else:
                 break
 
-        example_spec_res = self.__speculate_index(example_df.iloc[:, 0])
+        example_spec_res = self.__speculate_ordered_index(
+            self.__example_df.iloc[:, 0])
         if example_spec_res[0] and is_numeric_dtype(example_spec_res[1]):
             X.iloc[:, 0] = np.arange(
                 example_spec_res[1], example_spec_res[1]+X.shape[0])
 
-        if has_header:
+        fullpath = os.path.join(self.save_dir, filename)
+
+        if self.__has_header:
             header = [re.compile(r"Unnamed: \d+").sub("", i)
-                      for i in example_df.columns.values]
-            return X.to_csv(fullpath, header=header, index=False, **dialect_kwargs)
+                      for i in self.__example_df.columns.values]
+            return X.to_csv(fullpath, header=header, index=False, **self.__dialect_kwargs)
         else:
-            return X.to_csv(fullpath, header=False, index=False, **dialect_kwargs)
+            return X.to_csv(fullpath, header=False, index=False, **self.__dialect_kwargs)
 
     def save(self, X, filename, memo=None, **kwargs):
         self.__used_kwargs = {**self.default_kwargs, **kwargs}
