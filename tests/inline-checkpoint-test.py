@@ -3,6 +3,7 @@ from checkpoint_test_base import R, CheckpointBaseTest
 import numpy as np
 import pandas as pd
 from Lutil._exceptions import InlineEnvironmentWarning, NotInlineCheckableError
+from strange_inline_statements import strange_statement_1, strange_statement_2, strange_statement_3
 
 def add_give_c(a, b):
     c = "reset"
@@ -243,3 +244,22 @@ class InlineCheckpointTest(CheckpointBaseTest):
         with self.assertRaises(ValueError):
             with InlineCheckpoint(watch=["f.a"], produce=["b"]):
                 b = 3
+
+    def test_strange_statement(self):
+        self.assertEqual(strange_statement_1(1,3),4)
+        self.runned()
+
+        self.assertEqual(strange_statement_1(1,3),4)
+        self.not_runned()
+
+        self.assertEqual(strange_statement_2(1,1),2)
+        self.runned()
+
+        self.assertEqual(strange_statement_2(1,1),2)
+        self.not_runned()
+
+        self.assertEqual(strange_statement_3(2,3),5)
+        self.runned()
+
+        self.assertEqual(strange_statement_3(2,3),5)
+        self.not_runned()

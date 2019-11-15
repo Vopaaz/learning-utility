@@ -123,6 +123,24 @@ class InlineCheckpoint(object):
                 if not re.compile(pattern).match(i):
                     raise e
 
+    def __get_start_line_and_indent(self, init_statement):
+        pattern = r'''(\s*)with .*?\(\s*watch\s*=\s*[\[\(]\s*['"]?%s['"]?[\]\)]\s*,\s+produce\s*=\s*[\[\(]\s*['"]%s['"][\]\)]\s*\).*?:''' % (
+            '''['"]\s*,\s*['"]'''.join(self.watch), '''['"]\s*,\s*['"]'''.join(self.produce))
+
+        matcher = re.compile(pattern)
+
+        start_line = None
+        res = matcher.match(init_statement)
+        if res:
+            start_line = self.lineno-1
+            indent = res.group(1)
+
+        if start_line is None:
+            raise Exception(
+                "Failed to check the content in the with-statement.")
+
+        return start_line, indent
+
     def __get_status_str(self):
         watch_dict = {}
 
@@ -151,21 +169,7 @@ class InlineCheckpoint(object):
 
         sourcelines = source.split("\n")
         init_statement = sourcelines[self.lineno-1]
-
-        pattern = r'''(\s*)with .*?\(\s*watch\s*=\s*[\[\(]\s*['"]?%s['"]?[\]\)]\s*,\s+produce\s*=\s*[\[\(]\s*['"]%s['"][\]\)]\s*\).*?:''' % (
-            '''['"]\s*,\s*['"]'''.join(self.watch), '''['"]\s*,\s*['"]'''.join(self.produce))
-
-        matcher = re.compile(pattern)
-
-        start_line = None
-        res = matcher.match(init_statement)
-        if res:
-            start_line = self.lineno-1
-            indent = res.group(1)
-
-        if start_line is None:
-            raise Exception(
-                "Failed to check the content in the with-statement.")
+        start_line, indent = self.__get_start_line_and_indent(init_statement)
 
         with_statement_lines = []
         for i in range(start_line+1, len(sourcelines)):
