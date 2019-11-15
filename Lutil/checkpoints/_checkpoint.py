@@ -123,16 +123,22 @@ class InlineCheckpoint(object):
                 if not re.compile(pattern).match(i):
                     raise e
 
-    def __get_start_line_and_indent(self, init_statement):
-        pattern = r'''(\s*)with .*?\(\s*watch\s*=\s*[\[\(]\s*['"]?%s['"]?[\]\)]\s*,\s+produce\s*=\s*[\[\(]\s*['"]%s['"][\]\)]\s*\).*?:''' % (
+    def __get_start_line_and_indent(self, sourcelines):
+
+        pattern = r'''(\s*)with .*?\(\s*watch\s*=\s*[\[\(]\s*['"]?%s['"]?\s*[\]\)]\s*,\s*produce\s*=\s*[\[\(]\s*['"]%s['"]\s*[\]\)]\s*\).*?:''' % (
             '''['"]\s*,\s*['"]'''.join(self.watch), '''['"]\s*,\s*['"]'''.join(self.produce))
 
         matcher = re.compile(pattern)
 
-        start_line = None
-        res = matcher.match(init_statement)
+        start_line = res = None
+
+        while not res and self.lineno > 0:
+            init_statement = "\n".join(sourcelines[self.lineno-1:])
+            res = matcher.match(init_statement)
+            self.lineno -= 1
+
         if res:
-            start_line = self.lineno-1
+            start_line = self.lineno
             indent = res.group(1)
 
         if start_line is None:
@@ -168,8 +174,7 @@ class InlineCheckpoint(object):
                 "Unknown error when detecting jupyter or .py environment.")
 
         sourcelines = source.split("\n")
-        init_statement = sourcelines[self.lineno-1]
-        start_line, indent = self.__get_start_line_and_indent(init_statement)
+        start_line, indent = self.__get_start_line_and_indent(sourcelines)
 
         with_statement_lines = []
         for i in range(start_line+1, len(sourcelines)):
