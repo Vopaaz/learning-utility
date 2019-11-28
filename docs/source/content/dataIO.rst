@@ -25,7 +25,7 @@ save your result.
 
     :param X: The prediction result to be saved
     :type X: pd.DataFrame, pd.Series or np.ndarray
-    :param str filename: The filename of the result file
+    :param str filename: Optional, the filename of the result file. Will use ``datetime.datetime.now().strftime(r"%m%d-%H%M%S") + ".csv"`` if left empty
     :param str memo: Optional, the memo logged for this result
     :param kwargs: Other keyword arguments arbitrarily used for `DataFrame.to_csv()`
 

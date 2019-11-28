@@ -1,18 +1,17 @@
 import csv
+import datetime
 import logging
 import operator
 import os
-import threading
 import re
+import threading
+import warnings
 
 import chardet
 import numpy as np
 import pandas as pd
+from Lutil._exceptions import DuplicateSettingWarning, SpeculationFailedError
 from pandas.api.types import is_numeric_dtype, is_string_dtype
-
-from Lutil._exceptions import SpeculationFailedError
-import warnings
-from Lutil._exceptions import DuplicateSettingWarning
 
 __all__ = ["DataReader", "AutoSaver"]
 
@@ -313,7 +312,9 @@ class AutoSaver(object):
         else:
             return X.to_csv(fullpath, header=False, index=False, **self.__dialect_kwargs)
 
-    def save(self, X, filename, memo=None, **kwargs):
+    def save(self, X, filename=None, memo=None, **kwargs):
+        if not filename:
+            filename = datetime.datetime.now().strftime(r"%m%d-%H%M%S") + ".csv"
         self.__used_kwargs = {**self.default_kwargs, **kwargs}
 
         res = self.__save_by_to_csv(X, filename)

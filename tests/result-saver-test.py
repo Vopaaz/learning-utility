@@ -3,6 +3,7 @@ from Lutil.dataIO import AutoSaver
 import logging
 import pandas as pd
 import numpy as np
+import re
 
 import os
 import shutil
@@ -87,6 +88,18 @@ class AutoSaverGeneralTest(AutoSaverTest):
             content = f.read()
         self.assertEqual(content.strip(), "\n".join(
             ["test_memo_df.csv: hello", "test_memo_df_2.csv: hello again"]))
+
+    def test_no_filename(self):
+        old_files = os.listdir(self.test_assets_dir)
+        saver = AutoSaver(self.test_assets_dir)
+        saver.save(pd.DataFrame())
+        files = os.listdir(self.test_assets_dir)
+        self.assertEqual(len(files), len(old_files)+1)
+
+        new_file = [_ for _ in files if _ not in old_files][0]
+        self.assertTrue(
+            bool(re.compile(r"\d{4}-\d{6}\.csv").match(new_file))
+        )
 
 
 class AutoSaverSpeculatingTest(AutoSaverTest):
@@ -341,7 +354,7 @@ strix4,0.5
         saver.save(arr, self.filename)
         self.assertEqual(self.get_csv_content(), target)
 
-        saver.save(arr.reshape((5,1)), self.filename)
+        saver.save(arr.reshape((5, 1)), self.filename)
         self.assertEqual(self.get_csv_content(), target)
 
         saver.save(pd.Series(arr), self.filename)
