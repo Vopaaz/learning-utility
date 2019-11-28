@@ -4,6 +4,7 @@ Changelog
 v0.1.5
 ^^^^^^^^^^^^^^^^^^
 * Bug fixes
+* Now the file name of ``Autosaver.save`` is optional, will use ``datetime.datetime.now().strftime(r"%m%d-%H%M%S") + ".csv"`` if left empty
 
 v0.1.4
 ^^^^^^^^^^^^^^^^
