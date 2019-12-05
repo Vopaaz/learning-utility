@@ -36,6 +36,9 @@ def checkpoint(ignore=[]):
         def inner(*args, **kwargs):
             if not os.path.exists(_save_dir):
                 os.mkdir(_save_dir)
+            recompute = "__recompute__" in kwargs and kwargs["__recompute__"]
+            if recompute:
+                kwargs.pop("__recompute__")
 
             _check_handleable(func)
             file_info = _get_file_info(func)
@@ -45,7 +48,8 @@ def checkpoint(ignore=[]):
             hash_val = _get_hash_of_str(file_info + id_str)
 
             cache_path = os.path.join(_save_dir, f"{hash_val}.pkl")
-            if os.path.exists(cache_path):
+
+            if os.path.exists(cache_path) and not recompute:
                 return joblib.load(cache_path)
             else:
                 res = func(*args, **kwargs)

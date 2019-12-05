@@ -266,6 +266,27 @@ you will get::
     Otherwise it will vary each time, and be considered a different computation context.
     Thus the decorated function will not be skipped.
 
+Force Recomputation
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Sometimes you want to arbitrarily rerun a function and recompute the result,
+probably because some files you read inside the function is changed,
+which requires recompute but can not be identified by default.
+You can add ``__recompute__=True`` parameter to the function call to force recomputation.
+
+.. code-block:: python
+
+    print(foo(1, 2, __recompute__=True))
+    print(foo(1, 2, __recompute__=True))
+
+You will get::
+
+    Heavy computation.
+    3
+    Heavy computation.
+    3
+
+The second function call is forced to recompute.
 
 Ignore Some Parameters
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
