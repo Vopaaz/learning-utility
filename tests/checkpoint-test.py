@@ -303,3 +303,13 @@ class CheckpointTest(CheckpointBaseTest):
                 return 1
 
             foo()
+
+    def test_force_recompute(self):
+        empty()
+        self.runned()
+
+        empty()
+        self.not_runned()
+
+        empty(__recompute__=True)
+        self.runned()
