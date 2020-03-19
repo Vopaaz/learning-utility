@@ -49,7 +49,13 @@ def _get_identify_str_for_cls_or_object(obj):
 
 
 def _hash_pd_object(obj):
-    return hashlib.md5(pd.util.hash_pandas_object(obj, index=True).values).hexdigest()
+    try:
+        return hashlib.md5(pd.util.hash_pandas_object(obj, index=True).values).hexdigest()
+    except TypeError:
+        return hashlib.md5(
+            pd.util.hash_pandas_object(obj.applymap(
+                _get_identify_str_for_value), index=True).values
+        ).hexdigest()
 
 
 def _hash_np_array(arr):
