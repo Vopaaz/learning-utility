@@ -1,6 +1,10 @@
 Changelog
 ==============
 
+v0.1.6
+^^^^^^^^^^^^^^^^^^^
+* Support pandas DataFrame with initially un-hashable elements as a parameter.
+
 v0.1.5
 ^^^^^^^^^^^^^^^^^^
 * Bug fixes
