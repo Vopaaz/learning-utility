@@ -324,3 +324,11 @@ class CheckpointTest(CheckpointBaseTest):
 
         return_input(df)
         self.not_runned()
+
+    def test_dirty_ndarray(self):
+        arr = np.array([[0],1])
+        return_input(arr)
+        self.runned()
+
+        return_input(arr)
+        self.not_runned()
