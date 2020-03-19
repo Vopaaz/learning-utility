@@ -7,6 +7,7 @@ from Lutil._exceptions import NotDecoratableError
 
 from checkpoint_test_base import R, CheckpointBaseTest
 
+
 @checkpoint
 def empty():
     R()
@@ -313,3 +314,13 @@ class CheckpointTest(CheckpointBaseTest):
 
         empty(__recompute__=True)
         self.runned()
+
+    def test_dirty_dataframe(self):
+        df = pd.DataFrame({
+            "A": [[1, 2]] # The element in the DataFrame is a list, which cannot be hashed by pandas
+        })
+        return_input(df)
+        self.runned()
+
+        return_input(df)
+        self.not_runned()
