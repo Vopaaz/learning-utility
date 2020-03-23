@@ -317,7 +317,8 @@ class CheckpointTest(CheckpointBaseTest):
 
     def test_dirty_dataframe(self):
         df = pd.DataFrame({
-            "A": [[1, 2]] # The element in the DataFrame is a list, which cannot be hashed by pandas
+            # The element in the DataFrame is a list, which cannot be hashed by pandas
+            "A": [[1, 2]]
         })
         return_input(df)
         self.runned()
@@ -326,9 +327,39 @@ class CheckpointTest(CheckpointBaseTest):
         self.not_runned()
 
     def test_dirty_ndarray(self):
-        arr = np.array([[0],1])
+        arr = np.array([[0], 1])
         return_input(arr)
         self.runned()
 
         return_input(arr)
+        self.not_runned()
+
+    def test_different_but_equal_ndarray(self):
+        arr1 = np.array([[0], [1], [2]])
+        arr2 = np.array([[0], [1], [2]])
+
+        return_input(arr1)
+        self.runned()
+
+        return_input(arr2)
+        self.not_runned()
+
+    def test_1darray(self):
+        arr1 = np.array([0, 1, 2])
+        arr2 = np.array([0, 1, 2])
+
+        return_input(arr1)
+        self.runned()
+
+        return_input(arr2)
+        self.not_runned()
+
+    def test_read_file_to_numpy(self):
+        arr1 = pd.read_csv(r"tests/assets/data3.csv").to_numpy()
+        arr2 = pd.read_csv(r"tests/assets/data3.csv").to_numpy()
+
+        return_input(arr1)
+        self.runned()
+
+        return_input(arr2)
         self.not_runned()
