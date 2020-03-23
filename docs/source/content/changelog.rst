@@ -1,6 +1,11 @@
 Changelog
 ==============
 
+v0.1.7
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+* Fix a corner case, where the numpy array created from `pd.DataFrame.to_numpy()` cannot be properly hashed.
+
+
 v0.1.6
 ^^^^^^^^^^^^^^^^^^^
 * Support pandas DataFrame with initially un-hashable elements as a parameter.
