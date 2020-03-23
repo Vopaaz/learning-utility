@@ -59,11 +59,7 @@ def _hash_pd_object(obj):
 
 
 def _hash_np_array(arr):
-    if arr.flags['C_CONTIGUOUS']:
-        return hashlib.md5(arr).hexdigest()
-    else:
-        return hashlib.md5(
-            np.ascontiguousarray(arr)).hexdigest()
+    return "numpy" + str(type(arr)) + _hash_pd_object(pd.DataFrame(arr))
 
 
 def _get_identify_str_for_value(value):
