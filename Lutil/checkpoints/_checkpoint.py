@@ -133,13 +133,22 @@ class InlineCheckpoint(object):
             '''['"]\s*,\s*['"]'''.join(self.watch), '''['"]\s*,\s*['"]'''.join(self.produce))
 
         matcher = re.compile(pattern)
-
         start_line = res = None
+
+        initial_lineno = self.lineno
 
         while not res and self.lineno > 0:
             init_statement = "\n".join(sourcelines[self.lineno-1:])
             res = matcher.match(init_statement)
             self.lineno -= 1
+
+        if not res:
+            self.lineno = initial_lineno
+
+        while not res and self.lineno < len(sourcelines):
+            init_statement = "\n".join(sourcelines[self.lineno-1:])
+            res = matcher.match(init_statement)
+            self.lineno += 1
 
         if res:
             start_line = self.lineno

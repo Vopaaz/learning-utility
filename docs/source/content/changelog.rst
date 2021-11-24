@@ -1,6 +1,10 @@
 Changelog
 ==============
 
+v0.1.8
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+* Fix a bug when the line number cannot be correctly identified in jupyter notebook
+
 v0.1.7
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 * Fix a corner case, where the numpy array created from `pd.DataFrame.to_numpy()` cannot be properly hashed.
