@@ -1,6 +1,10 @@
 Changelog
 ==============
 
+v0.1.9
+^^^^^^^^^^^^^^^^^^^^^^^
+* Fix the bug that the Exceptions in the `InlineCheckpoint` still results in the `produce` variables to be cached
+
 v0.1.8
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 * Fix a bug when the line number cannot be correctly identified in jupyter notebook

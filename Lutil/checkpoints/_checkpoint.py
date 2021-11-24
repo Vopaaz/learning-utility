@@ -231,6 +231,9 @@ class InlineCheckpoint(object):
         raise SkipWithBlock()
 
     def __exit__(self, type, value, traceback):
+        if type is not None and type is not SkipWithBlock:
+            return
+
         if self.skip:
             for i in self.produce:
                 self.__retrieve(i)
@@ -238,10 +241,7 @@ class InlineCheckpoint(object):
             for i in self.produce:
                 self.__save(i)
 
-        if type is None:
-            return
-        if issubclass(type, SkipWithBlock):
-            return True
+        return True
 
     def __cache_file_name(self, i):
         return os.path.join(_save_dir, f"{self.status_hash}-{i}.pkl")
