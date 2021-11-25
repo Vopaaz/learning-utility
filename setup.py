@@ -5,7 +5,7 @@ with open(r'README.md',"r",encoding="utf-8") as f:
 
 setup(
     name='Lutil',
-    version='0.1.9',
+    version='0.1.10',
     author='Vopaaz',
     author_email='liyifan945@163.com',
     url='https://github.com/Vopaaz/learning-utility',

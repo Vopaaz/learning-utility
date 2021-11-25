@@ -1,6 +1,10 @@
 Changelog
 ==============
 
+v0.1.10
+^^^^^^^^^^^^^^^
+* Fix the bug that `InlineCheckpoint` cannot handle empty `produce` list
+
 v0.1.9
 ^^^^^^^^^^^^^^^^^^^^^^^
 * Fix the bug that the Exceptions in the `InlineCheckpoint` still results in the `produce` variables to be cached

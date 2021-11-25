@@ -3,19 +3,20 @@ import os
 import joblib
 import re
 
-from Lutil.checkpoints._check_util import (_get_applied_args,
-                                           _get_hash_of_str,
-                                           _get_identify_str_for_func,
-                                           _get_file_info,
-                                           _get_identify_str_for_value,
-                                           _check_handleable,
-                                           _check_inline_handleable,
-                                           )
+from Lutil.checkpoints._check_util import (
+    _get_applied_args,
+    _get_hash_of_str,
+    _get_identify_str_for_func,
+    _get_file_info,
+    _get_identify_str_for_value,
+    _check_handleable,
+    _check_inline_handleable,
+)
 
 from Lutil._exceptions import SkipWithBlock, InlineEnvironmentWarning
 import sys
 import inspect
-import logging
+from Lutil._logging import logger
 import warnings
 
 
@@ -55,6 +56,7 @@ def checkpoint(ignore=[]):
                 res = func(*args, **kwargs)
                 joblib.dump(res, cache_path)
                 return res
+
         return inner
 
     if param_is_callable:
@@ -83,9 +85,10 @@ class InlineCheckpoint(object):
         status_str = self.__get_status_str()
         self.status_hash = _get_hash_of_str(status_str)
 
-        logging.debug(f"status_str: {status_str}")
+        logger.debug(f"status_str: {status_str}")
 
         self.skip = self.__check_skip()
+        logger.debug(f"skip: {self.skip}")
 
     def __get_watch(self, i):
         assert isinstance(i, str)
@@ -128,17 +131,22 @@ class InlineCheckpoint(object):
                     raise e
 
     def __get_start_line_and_indent(self, sourcelines):
-
-        pattern = r'''(\s*)with .*?\(\s*watch\s*=\s*[\[\(]\s*['"]?%s['"]?\s*[\]\)]\s*,\s*produce\s*=\s*[\[\(]\s*['"]%s['"]\s*[\]\)]\s*\).*?:''' % (
-            '''['"]\s*,\s*['"]'''.join(self.watch), '''['"]\s*,\s*['"]'''.join(self.produce))
+        pattern = (
+            r"""(\s*)with .*?\(\s*watch\s*=\s*[\[\(]\s*['"]?%s['"]?\s*[\]\)]\s*,\s*produce\s*=\s*[\[\(]\s*['"]?%s['"]?\s*[\]\)]\s*\).*?:"""
+            % ("""['"]\s*,\s*['"]""".join(self.watch), """['"]\s*,\s*['"]""".join(self.produce))
+        )
 
         matcher = re.compile(pattern)
         start_line = res = None
 
         initial_lineno = self.lineno
 
+        logger.debug(f"start-line pattern: {pattern}")
+        logger.debug(f"initial_lineno: {initial_lineno}")
+        logger.debug(f"sourcelines: {sourcelines}")
+
         while not res and self.lineno > 0:
-            init_statement = "\n".join(sourcelines[self.lineno-1:])
+            init_statement = "\n".join(sourcelines[self.lineno - 1 :])
             res = matcher.match(init_statement)
             self.lineno -= 1
 
@@ -146,7 +154,7 @@ class InlineCheckpoint(object):
             self.lineno = initial_lineno
 
         while not res and self.lineno < len(sourcelines):
-            init_statement = "\n".join(sourcelines[self.lineno-1:])
+            init_statement = "\n".join(sourcelines[self.lineno - 1 :])
             res = matcher.match(init_statement)
             self.lineno += 1
 
@@ -155,8 +163,7 @@ class InlineCheckpoint(object):
             indent = res.group(1)
 
         if start_line is None:
-            raise Exception(
-                "Failed to check the content in the with-statement.")
+            raise Exception("Failed to check the content in the with-statement.")
 
         return start_line, indent
 
@@ -171,8 +178,7 @@ class InlineCheckpoint(object):
             else:
                 watch_dict[i] = _get_identify_str_for_value(value)
 
-        watch_str = "-".join([f"{k}:{v}" for k,
-                              v in watch_dict.items()])
+        watch_str = "-".join([f"{k}:{v}" for k, v in watch_dict.items()])
 
         if "_ih" in self.globals and "In" in self.globals and "__file__" not in self.globals:
             file_name = "jupyter-notebook"
@@ -182,30 +188,30 @@ class InlineCheckpoint(object):
             with open(self.globals["__file__"], "r", encoding="utf-8") as f:
                 source = f.read()
         else:
-            logging.debug(self.globals)
-            raise Exception(
-                "Unknown error when detecting jupyter or .py environment.")
+            raise Exception("Unknown error when detecting jupyter or .py environment.")
 
         sourcelines = source.split("\n")
         start_line, indent = self.__get_start_line_and_indent(sourcelines)
 
         with_statement_lines = []
-        for i in range(start_line+1, len(sourcelines)):
+        for i in range(start_line + 1, len(sourcelines)):
             line = sourcelines[i]
-            pattern = indent+r"\s+\S+"
+            pattern = indent + r"\s+\S+"
             matcher = re.compile(pattern)
             if matcher.match(line):
                 with_statement_lines.append(line)
             else:
                 break
 
-        with_statement = ";".join(
-            [i.strip() for i in with_statement_lines]).replace(" ", "")
+        with_statement = ";".join([i.strip() for i in with_statement_lines]).replace(" ", "")
 
         identify_str = f"{file_name}-{watch_str}-{with_statement}"
         return identify_str
 
     def __checkpoint_exists(self):
+        if not self.produce:
+            return os.path.exists(self.__cache_file_name(None))
+
         for i in self.produce:
             if not os.path.exists(self.__cache_file_name(i)):
                 return False
@@ -237,6 +243,8 @@ class InlineCheckpoint(object):
         if self.skip:
             for i in self.produce:
                 self.__retrieve(i)
+        elif not self.produce:
+            joblib.dump(None, self.__cache_file_name(None))
         else:
             for i in self.produce:
                 self.__save(i)
@@ -244,6 +252,9 @@ class InlineCheckpoint(object):
         return True
 
     def __cache_file_name(self, i):
+        if i is None:
+            i = "None"
+
         return os.path.join(_save_dir, f"{self.status_hash}-{i}.pkl")
 
     def __retrieve(self, i):

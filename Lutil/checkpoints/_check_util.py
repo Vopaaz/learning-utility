@@ -1,6 +1,5 @@
 import hashlib
 import inspect
-import logging
 import os
 import re
 from collections import OrderedDict
@@ -10,6 +9,7 @@ import pandas as pd
 import warnings
 
 from Lutil._exceptions import NotDecoratableError, ComplexParamsIdentifyWarning, NotInlineCheckableError
+from Lutil._logging import logger
 
 
 def _get_file_info(obj):
@@ -31,7 +31,12 @@ def _get_identify_str_for_cls_or_object(obj):
             pass
         else:
             value = getattr(obj, attr)
-            if inspect.ismethod(value) or inspect.isclass(value) or inspect.isfunction(value) or inspect.isbuiltin(value):
+            if (
+                inspect.ismethod(value)
+                or inspect.isclass(value)
+                or inspect.isfunction(value)
+                or inspect.isbuiltin(value)
+            ):
                 pass
             elif isinstance(value, (pd.DataFrame, pd.Series)):
                 identify_dict[attr] = _hash_pd_object(value)
@@ -40,12 +45,11 @@ def _get_identify_str_for_cls_or_object(obj):
             else:
                 str_val = str(value)
                 if re.compile(r"<.*? object at \w{12,20}>").match(str_val):
-                    warnings.warn(ComplexParamsIdentifyWarning(
-                        f"A complicated object is an attribute of {str(obj)}"))
+                    warnings.warn(ComplexParamsIdentifyWarning(f"A complicated object is an attribute of {str(obj)}"))
                 else:
                     identify_dict[attr] = str_val + str(type(value))
 
-    return "-".join([k+":"+v for k, v in identify_dict.items()])
+    return "-".join([k + ":" + v for k, v in identify_dict.items()])
 
 
 def _hash_pd_object(obj):
@@ -53,8 +57,7 @@ def _hash_pd_object(obj):
         return hashlib.md5(pd.util.hash_pandas_object(obj, index=True).values).hexdigest()
     except TypeError:
         return hashlib.md5(
-            pd.util.hash_pandas_object(obj.applymap(
-                _get_identify_str_for_value), index=True).values
+            pd.util.hash_pandas_object(obj.applymap(_get_identify_str_for_value), index=True).values
         ).hexdigest()
 
 
@@ -78,13 +81,14 @@ def _get_identify_str_for_value(value):
 
 
 def _is_general_handleable(obj):
-    return not (inspect.isgenerator(obj) or
-                inspect.isgeneratorfunction(obj) or
-                inspect.iscoroutine(obj) or
-                inspect.iscoroutinefunction(obj) or
-                inspect.isasyncgen(obj) or
-                inspect.isasyncgenfunction(obj)
-                )
+    return not (
+        inspect.isgenerator(obj)
+        or inspect.isgeneratorfunction(obj)
+        or inspect.iscoroutine(obj)
+        or inspect.iscoroutinefunction(obj)
+        or inspect.isasyncgen(obj)
+        or inspect.isasyncgenfunction(obj)
+    )
 
 
 def _check_handleable(obj):
@@ -109,27 +113,23 @@ def _get_identify_str_for_func(func, applied_args, ignore=[]):
             identify_args[key] = _get_identify_str_for_cls_or_object(value)
 
         elif inspect.isclass(value):
-            warnings.warn(ComplexParamsIdentifyWarning(
-                f"A class is used as the parameter"))
+            warnings.warn(ComplexParamsIdentifyWarning(f"A class is used as the parameter"))
             identify_args[key] = value.__qualname__
 
         elif inspect.ismethod(value) or inspect.isfunction(value):
-            warnings.warn(ComplexParamsIdentifyWarning(
-                f"A function is used as the parameter"))
+            warnings.warn(ComplexParamsIdentifyWarning(f"A function is used as the parameter"))
             tmp_applied_args = _get_applied_args(value, (), {})
-            identify_args[key] = _get_identify_str_for_func(
-                value, tmp_applied_args)
+            identify_args[key] = _get_identify_str_for_func(value, tmp_applied_args)
 
         else:
             identify_args[key] = _get_identify_str_for_value(value)
 
-    identify_args_str = "-".join([f"{k}:{v}" for k,
-                                  v in identify_args.items()])
+    identify_args_str = "-".join([f"{k}:{v}" for k, v in identify_args.items()])
 
     code = inspect.getsource(func).replace("\n", "").replace(" ", "")
 
     full_str = f"{qualname}-{identify_args_str}-{code}"
-    logging.debug(f"Identification String: {full_str}")
+    logger.debug(f"Identification String: {full_str}")
     return full_str
 
 
@@ -142,10 +142,7 @@ def _get_hash_of_str(str_):
 def _get_applied_args(func, args, kwargs):
     # Get default args and kwargs
     signature = inspect.signature(func)
-    applied_args = OrderedDict({
-        k: v.default
-        for k, v in signature.parameters.items()
-    })
+    applied_args = OrderedDict({k: v.default for k, v in signature.parameters.items()})
 
     # update call args into applied_args
     items = list(applied_args.items())
