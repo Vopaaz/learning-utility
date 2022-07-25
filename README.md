@@ -1,3 +1,8 @@
+# Unmaintained
+
+**This project is unmaintained and the checkpoint functionality has been ported to the [checkpointing](https://github.com/Vopaaz/checkpointing) project.**
+
+
 # learning-utility
 
 **Assist small-scale machine learning.**
