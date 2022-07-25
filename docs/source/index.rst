@@ -1,7 +1,7 @@
 Unmaintained
 ===================================================
 
-**This project is unmaintained and the checkpoint functionality has been migrated to the** `**checkpointing** <https://github.com/Vopaaz/checkpointing>`_ **project.**
+**This project is unmaintained and the checkpoint functionality has been migrated to the** `checkpointing <https://github.com/Vopaaz/checkpointing>`_ **project.**
 
 
 Assist small-scale machine learning.
